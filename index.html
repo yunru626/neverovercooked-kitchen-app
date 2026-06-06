@@ -2,7 +2,7 @@
 <html lang="zh-TW">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no,viewport-fit=cover">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="不胡鬧廚房">
 <title>不胡鬧廚房</title>
@@ -18,18 +18,18 @@ html,body{height:100%;font-family:'Noto Sans TC',sans-serif;background:var(--bg)
 #app{height:100vh;display:flex;flex-direction:column;}
 .screen{display:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .screen.active{display:flex;flex-direction:column;}
-.screen-body{padding:16px;padding-bottom:150px;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.screen-body{padding:16px;padding-bottom:max(150px,calc(var(--nav-h) + env(safe-area-inset-bottom,0px) + 90px));flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 #cooking-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
 .tl-wrap{padding:16px;padding-bottom:20px;}
 .screen-header{height:var(--hdr-h);min-height:var(--hdr-h);display:flex;align-items:center;padding:0 16px;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0;}
-#cta-bar{position:fixed;bottom:var(--nav-h);left:0;right:0;padding:12px 16px;background:var(--bg);border-top:1px solid var(--border);z-index:90;display:none;}
+#cta-bar{position:fixed;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));left:0;right:0;padding:12px 16px;background:var(--bg);border-top:1px solid var(--border);z-index:90;display:none;}
 #cta-bar.visible{display:block;}
 #cta-bar.two-btn{display:flex;gap:10px;}
 .screen-header h2{font-size:17px;font-weight:700;flex:1;text-align:center;}
 .btn-back{width:36px;height:36px;border:none;background:var(--primary-light);border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
 .hdr-spacer{width:36px;}
-.bottom-nav{height:var(--nav-h);background:var(--card);border-top:1px solid var(--border);display:flex;position:fixed;bottom:0;left:0;right:0;z-index:100;}
-.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:none;background:none;cursor:pointer;font-family:'Noto Sans TC',sans-serif;color:var(--muted);font-size:14px;font-weight:700;transition:color .15s;letter-spacing:.5px;}
+.bottom-nav{height:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));background:var(--card);border-top:1px solid var(--border);display:flex;align-items:flex-start;padding-top:0;position:fixed;bottom:0;left:0;right:0;z-index:100;}
+.nav-item{flex:1;height:var(--nav-h);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:none;background:none;cursor:pointer;font-family:'Noto Sans TC',sans-serif;color:var(--muted);font-size:14px;font-weight:700;transition:color .15s;letter-spacing:.5px;}
 .nav-item.active{color:var(--primary);}
 .nav-dot{width:5px;height:5px;border-radius:50%;background:transparent;transition:background .2s;}
 .nav-item.active .nav-dot{background:var(--primary);}
@@ -117,7 +117,7 @@ html,body{height:100%;font-family:'Noto Sans TC',sans-serif;background:var(--bg)
 .icon-btn{width:34px;height:34px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
 .icon-btn.plan-sel-on{background:#E8F5E9;border-color:#4CAF50;color:#2E7D32;}
 .lib-card.plan-selected{border-color:var(--primary);background:var(--primary-light);}
-#lib-plan-bar{display:none;position:fixed;bottom:var(--nav-h);left:0;right:0;padding:10px 16px;background:var(--primary);z-index:95;box-shadow:0 -2px 12px rgba(0,0,0,.15);}
+#lib-plan-bar{display:none;position:fixed;bottom:calc(var(--nav-h) + env(safe-area-inset-bottom,0px));left:0;right:0;padding:10px 16px;background:var(--primary);z-index:95;box-shadow:0 -2px 12px rgba(0,0,0,.15);}
 .icon-btn.fav-on{background:#FCE4EC;border-color:#F48FB1;}
 .freq-chip{display:inline-flex;align-items:center;gap:4px;background:var(--primary-light);border:1.5px solid var(--primary);color:var(--primary);border-radius:20px;padding:5px 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;margin:3px 3px 3px 0;transition:opacity .15s;}
 .icon-btn.freq-on{background:#FFF3E0;border-color:#FFCC80;}
@@ -258,8 +258,7 @@ html,body{height:100%;font-family:'Noto Sans TC',sans-serif;background:var(--bg)
     <div class="search-bar"><span>🔍</span><input type="text" id="lib-search" placeholder="搜尋食譜名稱或食材..." oninput="renderLibrary()"></div>
     <div style="display:flex;gap:14px;font-size:12px;color:var(--muted);margin-bottom:10px;padding:0 2px;align-items:center">
       <span><b style="color:var(--primary)">＋</b> 加入今日規劃</span>
-      <span>❤️ 收藏備查</span>
-      <span>📌 常煮清單優先推薦</span>
+      <span>📌 加入常煮清單，推薦時優先出現</span>
     </div>
     <div class="chip-group" id="lib-filters" style="margin-bottom:14px;">
       <button class="chip selected" data-val="全部" onclick="setLibFilter('全部')">全部</button>
@@ -332,9 +331,8 @@ html,body{height:100%;font-family:'Noto Sans TC',sans-serif;background:var(--bg)
     </div>
     <div class="settings-item" style="margin-top:8px">
       <label>支持這個作品 ☕</label>
-      <p style="font-size:13px;color:var(--muted);margin-bottom:10px;font-weight:400;line-height:1.6">如果這個 App 對你有幫助，歡迎請我喝杯咖啡！（Ko-fi，不需要帳號）</p>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:10px;font-weight:400;line-height:1.6">如果這個 App 對你有幫助，歡迎請我喝杯咖啡！</p>
       <a href="https://ko-fi.com" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:#fff;text-decoration:none;background:#FF5E5B;border-radius:10px;padding:10px 16px">☕ Buy me a coffee</a>
-      <p style="font-size:11px;color:var(--muted);margin-top:8px;font-weight:400">* Ko-fi 頁面需自行設定，可在 ko-fi.com 免費建立</p>
     </div>
     <div style="text-align:center;color:var(--muted);font-size:12px;padding:20px 0;">不胡鬧廚房 v3.0 · 純本地端，資料不上傳</div>
   </div>
@@ -355,6 +353,9 @@ html,body{height:100%;font-family:'Noto Sans TC',sans-serif;background:var(--bg)
 </div>
 <div class="hint-overlay" id="hint-overlay" onclick="closeHint()">
   <div class="hint-box" onclick="event.stopPropagation()"><h4 id="hint-title">💡 小提示</h4><p id="hint-body"></p><button class="btn-primary hint-close" onclick="closeHint()">關閉</button></div>
+</div>
+<div class="modal-overlay" id="modal-warn" onclick="closeModal('modal-warn',event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()"><div class="modal-handle"></div><div id="warn-content"></div></div>
 </div>
 <script>
 // ── THEMES ──
@@ -908,7 +909,7 @@ function randomPlan(){
     });
   });
   document.querySelectorAll('#chip-cuisines .chip').forEach(b=>b.classList.remove('selected'));
-  startPlanning();
+  forceStartPlanning();
 }
 function initGreeting(){
   const h=new Date().getHours();
@@ -953,7 +954,33 @@ function initHome(){
   document.getElementById('chk-favs').onchange=e=>S.preferFavs=e.target.checked;
 }
 function updateFavSection(){document.getElementById('fav-section').style.display=S.frequent.length?'':'none';}
-function startPlanning(){recommendMenu();renderMenuScreen();navigate('menu');updatePlanBar();}
+function startPlanning(){
+  // 防呆：估算每道菜約需15分鐘，再加湯/甜品/飲料各10分
+  const total=S.numDishes+(S.wantSoup?1:0)+(S.wantDessert?1:0)+(S.wantDrink?1:0);
+  const needed=S.numDishes*15+(S.wantSoup?10:0)+(S.wantDessert?10:0)+(S.wantDrink?5:0);
+  if(S.timeAvailable<needed){
+    const jokes=[
+      `${total} 道 + ${S.timeAvailable} 分鐘⋯⋯你確定不是要叫外送？😅`,
+      `連瓦斯爐聽到都緊張了！${S.timeAvailable} 分鐘要搞定 ${total} 道，時間有點趕喔。`,
+      `你有分身術嗎？${S.timeAvailable} 分鐘 ${total} 道，廚房可能需要加開一條線！🔥`,
+      `${S.timeAvailable} 分鐘 ${total} 道，聽起來像極限挑戰節目的題目 😂 確定要繼續？`,
+    ];
+    const msg=jokes[Math.floor(Math.random()*jokes.length)];
+    document.getElementById('warn-content').innerHTML=`
+      <div style="font-size:40px;text-align:center;margin-bottom:10px">⏰</div>
+      <div class="modal-title" style="text-align:center">時間可能不太夠唷！</div>
+      <p style="font-size:14px;color:var(--muted);line-height:1.7;margin-bottom:20px;text-align:center">${msg}</p>
+      <button class="btn-primary" style="margin-bottom:10px" onclick="forceStartPlanning()">不管了，硬上！💪</button>
+      <button class="btn-outline" style="width:100%" onclick="closeModal('modal-warn')">好啦，我重選</button>`;
+    document.getElementById('modal-warn').classList.add('open');
+    return;
+  }
+  forceStartPlanning();
+}
+function forceStartPlanning(){
+  closeModal('modal-warn');
+  recommendMenu();renderMenuScreen();navigate('menu');updatePlanBar();
+}
 
 // ── MENU ──
 const TOOL_COLOR={'電鍋':'#854D0E','平底鍋':'#1E3A5F','中式炒菜鍋':'#14532D','湯鍋':'#1E3A5F','氣炸鍋':'#7C2D12','壓力鍋':'#7F1D1D','烤箱':'#4C1D95'};
@@ -1164,7 +1191,6 @@ function renderLibrary(){
       </div>
       <div class="lc-actions" onclick="event.stopPropagation()">
         <button class="icon-btn ${S.planSelected.includes(r.id)?'plan-sel-on':''}" onclick="togglePlanSelect('${r.id}')" title="加入今日規劃">${S.planSelected.includes(r.id)?'✅':'＋'}</button>
-        <button class="icon-btn ${S.favorites.includes(r.id)?'fav-on':''}" onclick="toggleFav('${r.id}',this)">${S.favorites.includes(r.id)?'❤️':'🤍'}</button>
         <button class="icon-btn ${S.frequent.includes(r.id)?'freq-on':''}" onclick="toggleFreq('${r.id}',this)">📌</button>
       </div>
     </div>`).join('');
@@ -1351,11 +1377,7 @@ function clearCustom(){if(!confirm('確定清除所有自定義食譜？'))retur
 load();initHome();navigate('home');initGreeting();
 </script>
 <script>
-if('serviceWorker' in navigator){
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('sw.js').then(r => console.log('SW registered')).catch(e => console.log('SW error', e));
-  });
-}
+if('serviceWorker' in navigator){window.addEventListener('load',()=>{navigator.serviceWorker.register('sw.js').catch(e=>console.log(e));});}
 </script>
 </body>
 </html>
