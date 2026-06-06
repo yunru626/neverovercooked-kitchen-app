@@ -1,0 +1,1361 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="不胡鬧廚房">
+<title>不胡鬧廚房</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#E8623B">
+<link rel="apple-touch-icon" href="icon-192.png">
+<meta name="mobile-web-app-capable" content="yes">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--primary:#E8623B;--primary-light:#FFF0EB;--secondary:#F5A623;--bg:#FFF8F2;--card:#FFFFFF;--text:#1A1A1A;--muted:#888;--border:#F0E4D8;--green:#4CAF50;--nav-h:64px;--hdr-h:56px;--hero-bg:linear-gradient(135deg,#E8623B 0%,#F5A623 100%);--hero-text:#fff;}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{height:100%;font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text);overflow:hidden;}
+#app{height:100vh;display:flex;flex-direction:column;}
+.screen{display:none;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.screen.active{display:flex;flex-direction:column;}
+.screen-body{padding:16px;padding-bottom:150px;flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+#cooking-content{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+.tl-wrap{padding:16px;padding-bottom:20px;}
+.screen-header{height:var(--hdr-h);min-height:var(--hdr-h);display:flex;align-items:center;padding:0 16px;background:var(--card);border-bottom:1px solid var(--border);flex-shrink:0;}
+#cta-bar{position:fixed;bottom:var(--nav-h);left:0;right:0;padding:12px 16px;background:var(--bg);border-top:1px solid var(--border);z-index:90;display:none;}
+#cta-bar.visible{display:block;}
+#cta-bar.two-btn{display:flex;gap:10px;}
+.screen-header h2{font-size:17px;font-weight:700;flex:1;text-align:center;}
+.btn-back{width:36px;height:36px;border:none;background:var(--primary-light);border-radius:50%;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.hdr-spacer{width:36px;}
+.bottom-nav{height:var(--nav-h);background:var(--card);border-top:1px solid var(--border);display:flex;position:fixed;bottom:0;left:0;right:0;z-index:100;}
+.nav-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;border:none;background:none;cursor:pointer;font-family:'Noto Sans TC',sans-serif;color:var(--muted);font-size:14px;font-weight:700;transition:color .15s;letter-spacing:.5px;}
+.nav-item.active{color:var(--primary);}
+.nav-dot{width:5px;height:5px;border-radius:50%;background:transparent;transition:background .2s;}
+.nav-item.active .nav-dot{background:var(--primary);}
+.btn-primary{background:var(--primary);color:#fff;border:none;border-radius:14px;padding:14px 24px;font-size:16px;font-weight:700;cursor:pointer;font-family:'Noto Sans TC',sans-serif;width:100%;transition:opacity .15s;display:flex;align-items:center;justify-content:center;gap:6px;}
+.btn-primary:active{opacity:.8;}
+.btn-primary:disabled{background:#ccc;cursor:default;}
+.btn-outline{background:none;border:1.5px solid var(--primary);color:var(--primary);border-radius:12px;padding:10px 16px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:all .15s;}
+.chip-group{display:flex;flex-wrap:wrap;gap:8px;}
+.chip{border:1.5px solid var(--border);background:var(--card);color:var(--text);border-radius:20px;padding:7px 14px;font-size:14px;font-weight:500;cursor:pointer;font-family:'Noto Sans TC',sans-serif;transition:all .15s;white-space:nowrap;}
+.chip.selected{border-color:var(--primary);background:var(--primary-light);color:var(--primary);}
+.card{background:var(--card);border-radius:16px;padding:16px;border:1px solid var(--border);margin-bottom:12px;}
+.sec-title{font-size:13px;font-weight:700;color:var(--muted);letter-spacing:.5px;margin-bottom:10px;}
+.seg-group{display:flex;gap:8px;}
+.seg{flex:1;border:1.5px solid var(--border);background:var(--card);color:var(--text);border-radius:10px;padding:10px 6px;font-size:14px;font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;text-align:center;transition:all .15s;}
+.seg.selected{border-color:var(--primary);background:var(--primary-light);color:var(--primary);}
+.option-card{background:var(--card);border-radius:16px;padding:16px;margin-bottom:12px;border:1px solid var(--border);}
+.option-card .label{font-size:14px;font-weight:700;margin-bottom:10px;}
+.option-card .sublabel{font-size:12px;color:var(--muted);font-weight:400;margin-left:6px;}
+.home-hero{background:var(--hero-bg);padding:28px 20px 24px;color:var(--hero-text);text-align:center;}
+.home-hero h1{font-size:26px;font-weight:700;margin-bottom:4px;}
+.home-hero p{font-size:14px;opacity:.85;}
+.recipe-card{background:var(--card);border-radius:16px;padding:16px;border:1px solid var(--border);margin-bottom:12px;position:relative;}
+.rc-header{display:flex;align-items:flex-start;gap:12px;margin-bottom:8px;}
+.rc-emoji{font-size:32px;line-height:1;min-width:44px;text-align:center;}
+.rc-name{font-size:18px;font-weight:700;margin-bottom:3px;}
+.rc-desc{font-size:13px;color:var(--muted);}
+.rc-meta{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap;}
+.badge{display:inline-flex;align-items:center;gap:3px;font-size:12px;padding:3px 8px;border-radius:20px;font-weight:600;}
+.badge-cuisine{background:#EEF2FF;color:#6366F1;}
+.badge-time{background:#FFF7ED;color:#C2410C;}
+.badge-tool{background:#F0FDF4;color:#166534;}
+.rc-swap-btn{position:absolute;top:12px;right:12px;background:var(--bg);border:1.5px solid var(--border);border-radius:8px;padding:5px 10px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;color:var(--muted);}
+.shop-group{margin-bottom:20px;}
+.shop-group-title{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+.shop-item{display:flex;align-items:flex-start;gap:12px;padding:12px 0;border-bottom:1px solid var(--border);cursor:pointer;}
+.shop-item:last-child{border-bottom:none;}
+.shop-check{width:22px;height:22px;border:2px solid var(--border);border-radius:6px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:all .15s;margin-top:1px;}
+.shop-item.checked .shop-check{background:var(--green);border-color:var(--green);color:#fff;font-size:13px;}
+.shop-item.checked .item-name{text-decoration:line-through;color:var(--muted);}
+.item-body{flex:1;}
+.item-name{font-size:15px;font-weight:500;}
+.item-optional{font-size:11px;color:var(--muted);font-weight:400;}
+.item-amount{font-size:13px;color:var(--muted);}
+.item-uses{margin-top:4px;}
+.item-use-row{font-size:12px;color:var(--muted);display:flex;gap:4px;align-items:baseline;}
+.item-use-row::before{content:"└";font-size:10px;}
+.shop-progress{background:var(--card);border-radius:12px;padding:12px 16px;margin-bottom:16px;border:1px solid var(--border);}
+.prog-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-top:8px;}
+.prog-fill{height:100%;background:var(--green);border-radius:3px;transition:width .3s;}
+.cook-prog-wrap{position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--border);padding:10px 16px;z-index:8;}
+.cook-prog-bar{height:6px;background:var(--border);border-radius:3px;overflow:hidden;margin-bottom:6px;}
+.cook-prog-fill{height:100%;background:var(--primary);border-radius:3px;transition:width .2s;}
+.cook-prog-meta{display:flex;justify-content:space-between;font-size:12px;color:var(--muted);}
+.dish-legend{display:flex;gap:8px;flex-wrap:wrap;padding:12px 16px;background:var(--card);border-bottom:1px solid var(--border);}
+.leg-item{display:flex;align-items:center;gap:5px;font-size:12px;font-weight:600;background:var(--bg);border-radius:8px;padding:4px 10px;border:1px solid var(--border);}
+.leg-dot{width:10px;height:10px;border-radius:50%;}
+
+.tl-item{display:flex;gap:12px;padding:10px 0;transition:opacity .3s;}
+.tl-item.tl-done{opacity:.35;}
+.tl-item.tl-current{opacity:1;}
+.tl-item.tl-upcoming{opacity:.6;}
+.tl-left{display:flex;flex-direction:column;align-items:center;width:44px;flex-shrink:0;}
+.tl-time{font-size:11px;font-weight:700;color:var(--muted);}
+.tl-dot-wrap{width:14px;height:14px;border-radius:50%;margin:4px 0;flex-shrink:0;}
+.tl-line{flex:1;width:2px;background:var(--border);min-height:8px;}
+.tl-card{border-radius:12px;padding:12px;border:1.5px solid var(--border);background:var(--card);flex:1;}
+.tl-item.tl-current .tl-card{border-color:var(--primary);background:var(--primary-light);}
+.tl-tag{font-size:11px;font-weight:700;border-radius:6px;padding:2px 7px;display:inline-block;margin-bottom:4px;}
+.tl-text{font-size:14px;font-weight:500;line-height:1.5;}
+.tl-meta{display:flex;align-items:center;gap:8px;margin-top:5px;flex-wrap:wrap;}
+.tl-badge{display:inline-flex;align-items:center;gap:3px;font-size:11px;font-weight:600;padding:2px 7px;border-radius:10px;}
+.tl-active{background:#FFF3E0;color:#E65100;}
+.tl-passive{background:#E8F5E9;color:#2E7D32;}
+.tl-dur{font-size:11px;color:var(--muted);}
+.step-tool{font-size:11px;background:#F0FDF4;color:#166534;border-radius:8px;padding:2px 8px;font-weight:600;border:1px solid #BBF7D0;}
+.hint-btn{background:var(--primary-light);border:1.5px solid var(--primary);border-radius:20px;padding:3px 10px;font-size:11px;font-weight:600;cursor:pointer;color:var(--primary);display:inline-flex;align-items:center;gap:3px;flex-shrink:0;font-family:'Noto Sans TC',sans-serif;}
+.done-banner{background:linear-gradient(135deg,var(--green),#2E7D32);border-radius:16px;padding:24px;text-align:center;color:#fff;margin:16px;}
+.search-bar{display:flex;align-items:center;background:var(--card);border:1.5px solid var(--border);border-radius:12px;padding:10px 14px;gap:8px;margin-bottom:12px;}
+.search-bar input{border:none;outline:none;flex:1;font-size:15px;font-family:'Noto Sans TC',sans-serif;background:transparent;color:var(--text);}
+.lib-card{display:flex;align-items:center;gap:12px;background:var(--card);border-radius:14px;padding:14px;border:1px solid var(--border);margin-bottom:10px;cursor:pointer;}
+.lib-card .lc-emoji{font-size:28px;min-width:40px;text-align:center;}
+.lib-card .lc-name{font-size:15px;font-weight:700;margin-bottom:2px;}
+.lib-card .lc-meta{font-size:12px;color:var(--muted);display:flex;gap:8px;}
+.lib-card .lc-actions{display:flex;gap:6px;}
+.icon-btn{width:34px;height:34px;border:1.5px solid var(--border);border-radius:8px;background:var(--bg);font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.icon-btn.plan-sel-on{background:#E8F5E9;border-color:#4CAF50;color:#2E7D32;}
+.lib-card.plan-selected{border-color:var(--primary);background:var(--primary-light);}
+#lib-plan-bar{display:none;position:fixed;bottom:var(--nav-h);left:0;right:0;padding:10px 16px;background:var(--primary);z-index:95;box-shadow:0 -2px 12px rgba(0,0,0,.15);}
+.icon-btn.fav-on{background:#FCE4EC;border-color:#F48FB1;}
+.freq-chip{display:inline-flex;align-items:center;gap:4px;background:var(--primary-light);border:1.5px solid var(--primary);color:var(--primary);border-radius:20px;padding:5px 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;margin:3px 3px 3px 0;transition:opacity .15s;}
+.icon-btn.freq-on{background:#FFF3E0;border-color:#FFCC80;}
+.fab{position:fixed;bottom:calc(var(--nav-h)+20px);right:20px;background:var(--primary);color:#fff;border:none;border-radius:14px;padding:10px 18px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(232,98,59,.4);display:flex;align-items:center;gap:6px;z-index:50;font-family:'Noto Sans TC',sans-serif;}
+.form-group{margin-bottom:16px;}
+.form-label{font-size:13px;font-weight:700;color:var(--muted);margin-bottom:6px;}
+.form-input{width:100%;border:1.5px solid var(--border);border-radius:10px;padding:11px 14px;font-size:15px;font-family:'Noto Sans TC',sans-serif;background:var(--card);color:var(--text);outline:none;transition:border-color .15s;}
+.form-input:focus{border-color:var(--primary);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
+.ing-row,.step-row{display:flex;gap:8px;align-items:flex-start;margin-bottom:8px;}
+.step-row textarea{flex:1;resize:none;border:1.5px solid var(--border);border-radius:8px;padding:8px 10px;font-size:14px;font-family:'Noto Sans TC',sans-serif;outline:none;}
+.step-dur{width:55px;border:1.5px solid var(--border);border-radius:8px;padding:8px 6px;font-size:14px;font-family:'Noto Sans TC',sans-serif;outline:none;text-align:center;}
+.step-type-btn{border:1.5px solid var(--border);border-radius:8px;padding:8px;font-size:12px;background:var(--card);cursor:pointer;font-family:'Noto Sans TC',sans-serif;white-space:nowrap;transition:all .15s;}
+.step-type-btn.passive{background:#E8F5E9;border-color:#A5D6A7;color:#2E7D32;}
+.step-type-btn.active-type{background:#FFF3E0;border-color:#FFCC80;color:#E65100;}
+.btn-add-row{width:100%;border:1.5px dashed var(--border);border-radius:10px;padding:10px;font-size:14px;color:var(--muted);background:none;cursor:pointer;font-family:'Noto Sans TC',sans-serif;margin-top:4px;}
+.btn-del{background:none;border:none;font-size:18px;cursor:pointer;padding:4px;flex-shrink:0;color:var(--muted);}
+.import-box{background:#F8F9FA;border:1.5px dashed var(--border);border-radius:12px;padding:14px;margin-bottom:12px;}
+.import-box textarea{width:100%;height:110px;resize:vertical;border:none;background:transparent;font-size:13px;font-family:'Noto Sans TC',sans-serif;outline:none;color:var(--text);}
+.settings-item{background:var(--card);border-radius:12px;padding:14px 16px;border:1px solid var(--border);margin-bottom:8px;}
+.settings-item label{font-size:14px;font-weight:600;display:block;margin-bottom:8px;}
+.tool-grid{display:flex;flex-wrap:wrap;gap:8px;}
+.tool-chip{border:1.5px solid var(--border);border-radius:10px;padding:7px 12px;font-size:13px;font-weight:600;cursor:pointer;font-family:'Noto Sans TC',sans-serif;background:var(--card);color:var(--text);transition:all .15s;}
+.tool-chip.on{border-color:#166534;background:#F0FDF4;color:#166534;}
+.theme-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px;}
+.theme-card{border:2px solid var(--border);border-radius:14px;padding:12px 8px;cursor:pointer;text-align:center;background:var(--card);transition:all .2s;position:relative;}
+.theme-card.active{border-color:var(--primary);}
+.theme-card.active::after{content:'✓';position:absolute;top:6px;right:8px;font-size:12px;color:var(--primary);font-weight:700;}
+.theme-dots{display:flex;justify-content:center;gap:5px;margin-bottom:8px;}
+.theme-dot{width:18px;height:18px;border-radius:50%;}
+.theme-name{font-size:12px;font-weight:700;color:var(--text);}
+.theme-sub{font-size:10px;color:var(--muted);margin-top:2px;}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;display:none;align-items:flex-end;}
+.modal-overlay.open{display:flex;}
+.modal-sheet{background:var(--card);border-radius:20px 20px 0 0;width:100%;max-height:80vh;overflow-y:auto;padding:20px 16px 32px;animation:slideUp .25s ease;}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.modal-handle{width:36px;height:4px;background:var(--border);border-radius:2px;margin:0 auto 16px;}
+.modal-title{font-size:17px;font-weight:700;margin-bottom:14px;}
+.swap-opt{display:flex;align-items:center;gap:12px;padding:12px;border:1.5px solid var(--border);border-radius:12px;margin-bottom:8px;cursor:pointer;}
+.swap-opt:active{border-color:var(--primary);background:var(--primary-light);}
+.hint-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;}
+.hint-overlay.open{display:flex;}
+.hint-box{background:var(--card);border-radius:16px;padding:20px;max-width:340px;width:100%;}
+.hint-box h4{font-size:15px;font-weight:700;margin-bottom:10px;}
+.hint-box p{font-size:14px;line-height:1.6;color:#444;}
+.hint-close{margin-top:14px;width:100%;}
+</style>
+</head>
+<body>
+<div id="app">
+<!-- HOME -->
+<div class="screen active" id="screen-home">
+  <div class="home-hero" id="home-hero">
+    <h1>🍳 不胡鬧廚房</h1>
+    <p id="hero-greeting">今天要煮什麼，交給我來規劃</p>
+    <button onclick="randomPlan()" style="margin-top:14px;background:rgba(255,255,255,0.25);border:1.5px solid rgba(255,255,255,0.6);border-radius:20px;padding:8px 20px;font-size:14px;font-weight:700;color:#fff;cursor:pointer;font-family:'Noto Sans TC',sans-serif;backdrop-filter:blur(4px);">🎲 幫我隨機決定</button>
+  </div>
+  <div class="screen-body">
+    <div class="option-card"><div class="label">主菜／配菜幾道？<span class="sublabel">一般家常選 2–3 道</span></div>
+      <div class="seg-group" id="seg-dishes" style="flex-wrap:wrap;">
+        <button class="seg" data-val="1">1 道</button><button class="seg selected" data-val="2">2 道</button><button class="seg" data-val="3">3 道</button><button class="seg" data-val="4">4 道</button><button class="seg" data-val="5">5 道</button><button class="seg" data-val="custom">自行輸入</button>
+      </div>
+      <div id="custom-dishes-wrap" style="display:none;margin-top:8px;align-items:center;gap:8px;padding:0 2px">
+        <span style="font-size:14px;color:var(--muted)">共</span>
+        <input id="custom-dishes-input" type="number" min="1" max="20" value="6" class="form-input" style="width:70px;text-align:center;padding:8px 6px">
+        <span style="font-size:14px;color:var(--muted)">道菜</span>
+      </div></div>
+    <div class="option-card"><div class="label">加湯？<span class="sublabel">選填</span></div>
+      <div class="seg-group" id="seg-soup">
+        <button class="seg selected" data-val="0">不加</button><button class="seg" data-val="1">想喝湯</button>
+      </div></div>
+    <div class="option-card"><div class="label">加甜品？<span class="sublabel">選填</span></div>
+      <div class="seg-group" id="seg-dessert">
+        <button class="seg selected" data-val="0">不加</button><button class="seg" data-val="1">想吃甜品</button>
+      </div></div>
+    <div class="option-card"><div class="label">加飲料？<span class="sublabel">選填</span></div>
+      <div class="seg-group" id="seg-drink">
+        <button class="seg selected" data-val="0">不加</button><button class="seg" data-val="1">想喝點什麼</button>
+      </div></div>
+    <div class="option-card"><div class="label">可用時間？<span class="sublabel">含切菜備料</span></div>
+      <div class="seg-group" id="seg-time">
+        <button class="seg" data-val="30">30 分</button><button class="seg selected" data-val="45">45 分</button><button class="seg" data-val="60">1 小時</button><button class="seg" data-val="120">1.5小時以上</button>
+      </div></div>
+    <div class="option-card"><div class="label">口味偏好？<span class="sublabel">不選 = 什麼都行</span></div>
+      <div class="chip-group" id="chip-cuisines">
+        <button class="chip" data-val="台式">🏠 台式</button><button class="chip" data-val="中式">🥢 中式</button>
+        <button class="chip" data-val="日式">🍱 日式</button><button class="chip" data-val="韓式">🌶️ 韓式</button>
+        <button class="chip" data-val="義式">🍝 義式</button><button class="chip" data-val="法式">🥐 法式</button>
+        <button class="chip" data-val="美式">🍔 美式</button><button class="chip" data-val="主食">🍜 飯／麵</button>
+      </div></div>
+    <div id="fav-section" style="display:none"><div class="option-card"><div style="display:flex;align-items:center;gap:10px;">
+      <input type="checkbox" id="chk-favs" style="width:18px;height:18px;accent-color:var(--primary);cursor:pointer;">
+      <label for="chk-favs" style="font-size:14px;color:var(--muted);cursor:pointer;">優先推薦我的常煮清單</label>
+    </div></div></div>
+  </div>
+</div>
+<!-- MENU -->
+<div class="screen" id="screen-menu">
+  <div class="screen-header"><button class="btn-back" onclick="navigate('home')">←</button><h2>推薦菜單</h2><div class="hdr-spacer"></div></div>
+  <div class="screen-body">
+    <p style="font-size:13px;color:var(--muted);margin-bottom:6px;">不滿意可點右上角「換」</p>
+    <p style="font-size:11px;color:var(--muted);margin-bottom:14px;opacity:.7">⏱ 時間均含切菜備料</p>
+    <div id="menu-cards"></div>
+  </div>
+</div>
+<!-- SHOPPING -->
+<div class="screen" id="screen-shopping">
+  <div class="screen-header"><button class="btn-back" onclick="navigate('menu')">←</button><h2>採購清單</h2><div class="hdr-spacer"></div></div>
+  <div class="screen-body">
+    <div style="display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px 16px;margin-bottom:12px">
+      <span style="font-size:14px;font-weight:600">幾人份？</span>
+      <div style="display:flex;align-items:center;gap:14px">
+        <button onclick="changeShopServings(-1)" style="width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border);background:var(--bg);font-size:18px;line-height:1;cursor:pointer;font-family:inherit">&#x2212;</button>
+        <span id="shop-servings-val" style="font-size:17px;font-weight:700;min-width:20px;text-align:center">2</span>
+        <button onclick="changeShopServings(1)" style="width:30px;height:30px;border-radius:50%;border:1.5px solid var(--border);background:var(--bg);font-size:18px;line-height:1;cursor:pointer;font-family:inherit">&#xFF0B;</button>
+      </div>
+    </div>
+    <div class="shop-progress">
+      <div style="display:flex;justify-content:space-between;align-items:center;"><span style="font-size:14px;font-weight:600;">備料進度</span><span id="shop-count" style="font-size:14px;color:var(--green);font-weight:700;">0 / 0</span></div>
+      <div class="prog-bar"><div class="prog-fill" id="shop-prog" style="width:0%"></div></div>
+    </div>
+    <div id="shopping-list"></div>
+  </div>
+</div>
+<!-- COOKING -->
+<div class="screen" id="screen-cooking">
+  <div class="cook-prog-wrap" id="cook-prog-wrap" style="display:none">
+    <div class="cook-prog-bar"><div class="cook-prog-fill" id="cook-prog-fill" style="width:0%"></div></div>
+    <div class="cook-prog-meta"><span id="cook-step-label">步驟 0 / 0</span><span id="cook-time-left"></span></div>
+  </div>
+  <div class="screen-header"><button class="btn-back" onclick="navigate('shopping')">←</button><h2>開始煮！</h2><div class="hdr-spacer"></div></div>
+  <div id="cooking-content"></div>
+</div>
+<!-- LIBRARY -->
+<div class="screen" id="screen-library">
+  <div class="screen-header"><div class="hdr-spacer"></div><h2>食譜庫</h2><div class="hdr-spacer"></div></div>
+  <div class="screen-body">
+    <div class="search-bar"><span>🔍</span><input type="text" id="lib-search" placeholder="搜尋食譜名稱或食材..." oninput="renderLibrary()"></div>
+    <div style="display:flex;gap:14px;font-size:12px;color:var(--muted);margin-bottom:10px;padding:0 2px;align-items:center">
+      <span><b style="color:var(--primary)">＋</b> 加入今日規劃</span>
+      <span>❤️ 收藏備查</span>
+      <span>📌 常煮清單優先推薦</span>
+    </div>
+    <div class="chip-group" id="lib-filters" style="margin-bottom:14px;">
+      <button class="chip selected" data-val="全部" onclick="setLibFilter('全部')">全部</button>
+      <button class="chip" data-val="台式" onclick="setLibFilter('台式')">台式</button>
+      <button class="chip" data-val="中式" onclick="setLibFilter('中式')">中式</button>
+      <button class="chip" data-val="日式" onclick="setLibFilter('日式')">日式</button>
+      <button class="chip" data-val="韓式" onclick="setLibFilter('韓式')">韓式</button>
+      <button class="chip" data-val="義式" onclick="setLibFilter('義式')">義式</button>
+      <button class="chip" data-val="法式" onclick="setLibFilter('法式')">法式</button>
+      <button class="chip" data-val="美式" onclick="setLibFilter('美式')">美式</button>
+      <button class="chip" data-val="主食" onclick="setLibFilter('主食')">飯／麵</button>
+      <button class="chip" data-val="湯品" onclick="setLibFilter('湯品')">🍵 湯品</button>
+      <button class="chip" data-val="甜品" onclick="setLibFilter('甜品')">🍮 甜品</button>
+      <button class="chip" data-val="飲料" onclick="setLibFilter('飲料')">☕ 飲料</button>
+      <button class="chip" data-val="自定義" onclick="setLibFilter('自定義')">我的食譜</button>
+    </div>
+    <div id="lib-list"></div>
+    <button class="fab" onclick="openAddRecipe()">＋ 新增食譜</button>
+  </div>
+</div>
+<!-- ADD RECIPE -->
+<div class="screen" id="screen-add">
+  <div class="screen-header"><button class="btn-back" onclick="navigate('library')">←</button><h2 id="add-title">新增食譜</h2><div class="hdr-spacer"></div></div>
+  <div class="screen-body">
+    <div class="option-card" style="margin-bottom:16px;">
+      <div class="label">📋 從文字貼入自動解析<span class="sublabel">把食譜網頁內容複製貼進來</span></div>
+      <div class="import-box"><textarea id="import-text" placeholder="把食譜文字貼在這裡（含食材和步驟），系統自動解析填入下方"></textarea></div>
+      <button class="btn-outline" style="width:100%" onclick="parseImport()">🔍 解析並填入</button>
+    </div>
+    <div style="text-align:center;color:var(--muted);font-size:13px;margin-bottom:16px;">── 或手動填寫 ──</div>
+    <div class="form-group"><div class="form-label">食譜名稱</div><input class="form-input" id="f-name" placeholder="例：媽媽的紅燒肉"></div>
+    <div class="form-row">
+      <div class="form-group"><div class="form-label">料理類型</div><select class="form-input" id="f-cuisine">
+        <option value="台式">台式</option><option value="中式">中式</option><option value="日式">日式</option>
+        <option value="韓式">韓式</option><option value="義式">義式</option><option value="法式">法式</option>
+        <option value="美式">美式</option><option value="主食">飯／麵</option><option value="其他">其他</option>
+      </select></div>
+      <div class="form-group"><div class="form-label">大約幾分鐘</div><input class="form-input" id="f-time" type="number" placeholder="20" min="5" max="180"></div>
+    </div>
+    <div class="form-group"><div class="form-label">一句話描述（選填）</div><input class="form-input" id="f-desc" placeholder="讓人想煮的理由"></div>
+    <div class="form-group"><div class="form-label">食材清單</div><div id="ing-list"></div><button class="btn-add-row" onclick="addIngRow()">＋ 新增食材</button></div>
+    <div class="form-group">
+      <div class="form-label">烹飪步驟<span class="sublabel">點右邊切換主動/被動</span></div>
+      <div id="step-list"></div><button class="btn-add-row" onclick="addStepRow()">＋ 新增步驟</button>
+    </div>
+  </div>
+</div>
+<!-- SETTINGS -->
+<div class="screen" id="screen-settings">
+  <div class="screen-header"><div class="hdr-spacer"></div><h2>設定</h2><div class="hdr-spacer"></div></div>
+  <div class="screen-body">
+    <div class="sec-title">介面風格</div>
+    <div class="settings-item" style="margin-bottom:16px;">
+      <div class="theme-grid" id="theme-grid"></div>
+    </div>
+    <div class="sec-title">我有的廚具</div>
+    <div class="settings-item" style="margin-bottom:16px;"><label>勾選家裡有的工具，推薦只會出現你能做的菜</label><div class="tool-grid" id="tool-grid"></div></div>
+    <div class="sec-title">偏好</div>
+    <div class="settings-item"><label>預設人份</label><div class="seg-group" id="seg-servings">
+      <button class="seg" data-val="1">1 人</button><button class="seg selected" data-val="2">2 人</button><button class="seg" data-val="3">3 人</button><button class="seg" data-val="4">4 人</button>
+    </div></div>
+    <div class="settings-item" style="margin-top:8px;"><label>常煮清單</label><div id="freq-count" style="font-size:14px;color:var(--primary);font-weight:600;"></div></div>
+    <div class="sec-title" style="margin-top:16px;">資料管理</div>
+    <div class="settings-item"><label>清除自定義食譜</label><button class="btn-outline" style="width:100%;margin-top:6px;" onclick="clearCustom()">清除</button></div>
+    <div class="sec-title" style="margin-top:16px">關於</div>
+    <div class="settings-item">
+      <label>意見回饋 ✉️</label>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:10px;font-weight:400;line-height:1.6">食譜有問題、想新增菜色、或發現 bug？歡迎寄信給我！</p>
+      <a href="mailto:yunru626@gmail.com" style="display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:600;color:var(--primary);text-decoration:none;background:var(--primary-light);border-radius:10px;padding:8px 14px;border:1.5px solid var(--primary)">✉️ yunru626@gmail.com</a>
+    </div>
+    <div class="settings-item" style="margin-top:8px">
+      <label>支持這個作品 ☕</label>
+      <p style="font-size:13px;color:var(--muted);margin-bottom:10px;font-weight:400;line-height:1.6">如果這個 App 對你有幫助，歡迎請我喝杯咖啡！（Ko-fi，不需要帳號）</p>
+      <a href="https://ko-fi.com" target="_blank" style="display:inline-flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:#fff;text-decoration:none;background:#FF5E5B;border-radius:10px;padding:10px 16px">☕ Buy me a coffee</a>
+      <p style="font-size:11px;color:var(--muted);margin-top:8px;font-weight:400">* Ko-fi 頁面需自行設定，可在 ko-fi.com 免費建立</p>
+    </div>
+    <div style="text-align:center;color:var(--muted);font-size:12px;padding:20px 0;">不胡鬧廚房 v3.0 · 純本地端，資料不上傳</div>
+  </div>
+</div>
+</div>
+<div id="cta-bar"></div>
+<div id="lib-plan-bar"><button class="btn-primary" onclick="startFromLibrary()" style="background:rgba(255,255,255,0.2);border:1.5px solid rgba(255,255,255,0.6);color:#fff;">已選 <span id="lib-plan-count">0</span> 道菜 → 直接開始備料</button></div>
+<nav class="bottom-nav">
+  <button class="nav-item active" id="nav-home" onclick="navHome()">今日規劃<span class="nav-dot"></span></button>
+  <button class="nav-item" id="nav-library" onclick="navigate('library')">食譜庫<span class="nav-dot"></span></button>
+  <button class="nav-item" id="nav-settings" onclick="navigate('settings')">設定<span class="nav-dot"></span></button>
+</nav>
+<div class="modal-overlay" id="modal-swap" onclick="closeModal('modal-swap',event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()"><div class="modal-handle"></div><div class="modal-title">換一道菜</div><div id="swap-opts"></div></div>
+</div>
+<div class="modal-overlay" id="modal-detail" onclick="closeModal('modal-detail',event)">
+  <div class="modal-sheet" onclick="event.stopPropagation()"><div class="modal-handle"></div><div id="detail-content"></div></div>
+</div>
+<div class="hint-overlay" id="hint-overlay" onclick="closeHint()">
+  <div class="hint-box" onclick="event.stopPropagation()"><h4 id="hint-title">💡 小提示</h4><p id="hint-body"></p><button class="btn-primary hint-close" onclick="closeHint()">關閉</button></div>
+</div>
+<script>
+// ── THEMES ──
+const THEMES={
+  '溫暖廚房':{
+    label:'溫暖廚房',sub:'暖橘·食慾感',
+    dots:['#E8623B','#F5A623','#FFF8F2'],
+    vars:{
+      '--primary':'#E8623B','--primary-light':'#FFF0EB','--secondary':'#F5A623',
+      '--bg':'#FFF8F2','--card':'#FFFFFF','--text':'#1A1A1A','--muted':'#888','--border':'#F0E4D8','--green':'#4CAF50',
+      '--hero-bg':'linear-gradient(135deg,#E8623B 0%,#F5A623 100%)','--hero-text':'#fff'
+    }
+  },
+  '無印簡練':{
+    label:'無印簡練',sub:'墨綠·清爽感',
+    dots:['#2D6A4F','#74B49B','#F5F5F0'],
+    vars:{
+      '--primary':'#2D6A4F','--primary-light':'#E8F5EF','--secondary':'#52796F',
+      '--bg':'#F5F5F0','--card':'#FFFFFF','--text':'#2A2A2A','--muted':'#9A9A9A','--border':'#D8E8E0','--green':'#2D6A4F',
+      '--hero-bg':'linear-gradient(135deg,#2D6A4F 0%,#52796F 100%)','--hero-text':'#fff'
+    }
+  },
+  '深夜料理':{
+    label:'深夜料理',sub:'深色·沉浸感',
+    dots:['#D4972A','#2A2A2A','#141414'],
+    vars:{
+      '--primary':'#D4972A','--primary-light':'#2A1E00','--secondary':'#A87820',
+      '--bg':'#141414','--card':'#1E1E1E','--text':'#E0E0E0','--muted':'#666','--border':'#2E2E2E','--green':'#4EA865',
+      '--hero-bg':'linear-gradient(135deg,#1A1A14 0%,#2A2200 100%)','--hero-text':'#D4972A'
+    }
+  },
+};
+function applyTheme(name){
+  const theme=THEMES[name];if(!theme)return;
+  Object.entries(theme.vars).forEach(([k,v])=>document.documentElement.style.setProperty(k,v));
+  S.theme=name;
+}
+function renderThemeGrid(){
+  const grid=document.getElementById('theme-grid');if(!grid)return;
+  grid.innerHTML=Object.entries(THEMES).map(([name,t])=>`
+    <div class="theme-card ${S.theme===name?'active':''}" onclick="selectTheme('${name}')">
+      <div class="theme-dots">${t.dots.map(c=>`<div class="theme-dot" style="background:${c};border:1px solid #ccc8"></div>`).join('')}</div>
+      <div class="theme-name">${t.label}</div>
+      <div class="theme-sub">${t.sub}</div>
+    </div>`).join('');
+}
+function selectTheme(name){applyTheme(name);save();renderThemeGrid();}
+
+// ── CONSTANTS ──
+const DISH_COLORS=['#E8623B','#3B82F6','#10B981','#8B5CF6'];
+const ALL_TOOLS=['電鍋','平底鍋','中式炒菜鍋','湯鍋','氣炸鍋','壓力鍋','烤箱','調理機'];
+const CAT_EMOJI={'蔬菜':'🥬','肉類':'🥩','海鮮':'🐟','蛋/豆腐':'🥚','主食':'🍚','調味料':'🧂','乾貨':'🫙','罐頭/乾貨':'🥫','乳製品':'🧈','其他':'📦'};
+const CAT_ORDER=['主食','肉類','海鮮','蛋/豆腐','蔬菜','乳製品','乾貨','罐頭/乾貨','調味料','其他'];
+
+// ── RECIPE DATABASE ──
+const BUILTIN=[
+// ══ 台式 ══
+{id:'tomato-egg',name:'番茄炒蛋',emoji:'🍳',cuisine:['台式'],category:'main',tools:['中式炒菜鍋'],tags:['快速','家常'],servings:2,totalTime:12,description:'下班必備，簡單暖心',
+ingredients:[{name:'番茄',amount:'2顆',category:'蔬菜'},{name:'雞蛋',amount:'3顆',category:'蛋/豆腐'},{name:'鹽',amount:'適量',category:'調味料'},{name:'糖',amount:'少許',category:'調味料',optional:true},{name:'食用油',amount:'2匙',category:'調味料'}],
+steps:[{text:'番茄切塊，雞蛋打散加一小撮鹽',duration:3,type:'active'},{text:'熱鍋下油，蛋液炒至半熟先盛起',duration:2,type:'active',hint:'蛋炒到約8分熟就先起鍋，回鍋時用餘溫，不會老掉。'},{text:'原鍋炒番茄，用鏟子壓出汁液',duration:4,type:'active'},{text:'加回雞蛋翻炒，加鹽糖調味',duration:2,type:'active'}]},
+
+{id:'triple-cup-chicken',name:'三杯雞',emoji:'🍗',cuisine:['台式'],category:'main',tools:['中式炒菜鍋'],tags:['下飯','香氣'],servings:2,totalTime:28,description:'九層塔香氣十足，配飯一流',
+ingredients:[{name:'雞腿肉',amount:'300g',category:'肉類'},{name:'薑',amount:'5片',category:'蔬菜',prep:'切片'},{name:'蒜頭',amount:'5瓣',category:'蔬菜',prep:'拍扁'},{name:'辣椒',amount:'1根',category:'蔬菜',optional:true},{name:'九層塔',amount:'一把',category:'蔬菜'},{name:'醬油',amount:'2匙',category:'調味料'},{name:'米酒',amount:'2匙',category:'調味料'},{name:'麻油',amount:'1匙',category:'調味料'},{name:'糖',amount:'1匙',category:'調味料'}],
+steps:[{text:'雞腿切塊，薑切片，蒜頭拍扁，辣椒切段',duration:5,type:'active'},{text:'麻油熱鍋爆香薑片至邊緣微捲，加蒜頭辣椒',duration:3,type:'active',hint:'麻油不耐高溫，要用小火慢慢爆香，否則容易焦苦。'},{text:'雞肉下鍋大火煎至表面金黃',duration:5,type:'active'},{text:'加醬油、米酒、糖，蓋鍋小火燜煮',duration:10,type:'passive'},{text:'大火收汁，加九層塔快炒幾下起鍋',duration:3,type:'active',hint:'九層塔只需要快炒幾下就關火，炒太久香氣會散。'}]},
+
+{id:'garlic-spinach',name:'蒜炒空心菜',emoji:'🥬',cuisine:['台式'],category:'main',tools:['中式炒菜鍋'],tags:['快速','蔬菜'],servings:2,totalTime:8,description:'清脆爽口，兩分鐘搞定',
+ingredients:[{name:'空心菜',amount:'1把',category:'蔬菜'},{name:'蒜頭',amount:'4瓣',category:'蔬菜',prep:'切末'},{name:'鹽',amount:'適量',category:'調味料'},{name:'食用油',amount:'1匙',category:'調味料'}],
+steps:[{text:'空心菜洗淨切段，蒜頭切末',duration:3,type:'active'},{text:'大火熱鍋下油，爆香蒜末',duration:1,type:'active'},{text:'空心菜下鍋大火快炒，加鹽，炒軟立刻起鍋',duration:3,type:'active'}]},
+
+{id:'stir-cabbage',name:'清炒高麗菜',emoji:'🥦',cuisine:['台式'],category:'main',tools:['中式炒菜鍋'],tags:['快速','蔬菜'],servings:2,totalTime:10,description:'日常必備，百搭蔬菜',
+ingredients:[{name:'高麗菜',amount:'半顆',category:'蔬菜'},{name:'蒜頭',amount:'3瓣',category:'蔬菜',prep:'切片'},{name:'鹽',amount:'適量',category:'調味料'},{name:'食用油',amount:'1匙',category:'調味料'}],
+steps:[{text:'高麗菜剝成小片，蒜頭切片',duration:4,type:'active'},{text:'熱鍋下油，爆香蒜片，高麗菜大火快炒',duration:4,type:'active'},{text:'加鹽調味，炒軟起鍋',duration:2,type:'active'}]},
+
+{id:'mapo-tofu',name:'麻婆豆腐',emoji:'🫕',cuisine:['台式'],category:'main',tools:['中式炒菜鍋'],tags:['下飯','辣'],servings:2,totalTime:20,description:'麻辣滑嫩，超下飯',
+ingredients:[{name:'嫩豆腐',amount:'1盒',category:'蛋/豆腐'},{name:'豬絞肉',amount:'100g',category:'肉類'},{name:'豆瓣醬',amount:'1.5匙',category:'調味料'},{name:'蒜末',amount:'1匙',category:'蔬菜'},{name:'薑末',amount:'1茶匙',category:'蔬菜'},{name:'醬油',amount:'1匙',category:'調味料'},{name:'太白粉',amount:'1匙',category:'調味料'},{name:'花椒粉',amount:'少許',category:'調味料',optional:true}],
+steps:[{text:'豆腐切小塊，太白粉加水調成勾芡液',duration:3,type:'active'},{text:'熱鍋炒香蒜末薑末，加豆瓣醬炒出紅油',duration:3,type:'active'},{text:'豬絞肉下鍋炒至變色',duration:3,type:'active'},{text:'加水和醬油，豆腐輕輕下鍋煮滾',duration:3,type:'active',hint:'豆腐要輕輕放，只用鍋鏟輕推，不要攪拌，以免碎掉。'},{text:'小火燉煮讓豆腐入味',duration:5,type:'passive'},{text:'勾芡，撒花椒粉',duration:2,type:'active'}]},
+
+{id:'steamed-egg',name:'茶碗蒸（電鍋）',emoji:'🥚',cuisine:['台式','日式'],category:'main',tools:['電鍋'],tags:['電鍋','嫩滑'],servings:2,totalTime:20,description:'滑嫩無比，顧健康',
+ingredients:[{name:'雞蛋',amount:'3顆',category:'蛋/豆腐'},{name:'高湯（或水）',amount:'250ml',category:'調味料'},{name:'醬油',amount:'1茶匙',category:'調味料',optional:true},{name:'鹽',amount:'少許',category:'調味料'}],
+steps:[{text:'雞蛋打散，加高湯（蛋:液=1:1.5）和鹽，混勻後過篩',duration:4,type:'active',hint:'過篩可去除氣泡和蛋筋，讓蒸蛋口感更細緻滑嫩。'},{text:'蛋液入碗蓋保鮮膜，放電鍋（外鍋半杯水）',duration:2,type:'active',hint:'蓋子留一根筷子的縫隙，避免蒸氣過猛讓蛋面出現蜂窩孔。'},{text:'電鍋蒸蛋',duration:12,type:'passive'},{text:'取出，淋少許醬油',duration:1,type:'active'}]},
+
+{id:'clam-loofah',name:'蛤蜊絲瓜',emoji:'🫙',cuisine:['台式'],category:'main',tools:['湯鍋','中式炒菜鍋'],tags:['清淡','鮮甜'],servings:2,totalTime:15,description:'清甜鮮美',
+ingredients:[{name:'蛤蜊',amount:'300g',category:'海鮮'},{name:'絲瓜',amount:'1條',category:'蔬菜'},{name:'薑',amount:'3片',category:'蔬菜',prep:'切絲'},{name:'鹽',amount:'少許',category:'調味料'}],
+steps:[{text:'蛤蜊吐沙洗淨，絲瓜削皮切塊，薑切絲',duration:5,type:'active',hint:'用3%鹽水（每1L水加30g鹽）淹沒蛤蜊，室溫靜置1小時或冷藏2-3小時讓牠吐沙。'},{text:'熱油爆香薑絲，絲瓜下鍋翻炒',duration:3,type:'active'},{text:'加半碗水，蛤蜊下鍋蓋鍋中火煮至全開',duration:5,type:'passive'},{text:'加少許鹽調味',duration:1,type:'active'}]},
+
+{id:'braised-pork',name:'快速滷肉',emoji:'🥩',cuisine:['台式'],category:'main',tools:['電鍋','中式炒菜鍋'],tags:['下飯','電鍋'],servings:3,totalTime:50,description:'電鍋慢燉，入味下飯',
+ingredients:[{name:'豬五花肉',amount:'400g',category:'肉類'},{name:'醬油',amount:'4匙',category:'調味料'},{name:'米酒',amount:'2匙',category:'調味料'},{name:'糖',amount:'1.5匙',category:'調味料'},{name:'蒜頭',amount:'4瓣',category:'蔬菜',prep:'拍扁'},{name:'八角',amount:'2粒',category:'調味料',optional:true},{name:'蔥',amount:'2根',category:'蔬菜',prep:'切段'}],
+steps:[{text:'五花肉切塊，熱水汆燙去腥',duration:8,type:'active'},{text:'少油煎肉塊至微焦，加蒜頭蔥段爆香',duration:5,type:'active'},{text:'加醬油、米酒、糖、八角和水（蓋過肉），移入電鍋',duration:3,type:'active'},{text:'電鍋外鍋2杯水燉煮',duration:30,type:'passive'},{text:'跳起後再燜5分鐘',duration:5,type:'passive'}]},
+
+{id:'egg-drop-soup',name:'蛋花湯',emoji:'🍵',cuisine:['台式'],category:'soup',tools:['湯鍋'],tags:['快速','湯'],servings:2,totalTime:8,description:'三分鐘完成',
+ingredients:[{name:'雞蛋',amount:'2顆',category:'蛋/豆腐'},{name:'高湯（或水）',amount:'500ml',category:'調味料'},{name:'鹽',amount:'適量',category:'調味料'},{name:'太白粉',amount:'1茶匙',category:'調味料',optional:true},{name:'蔥',amount:'少許',category:'蔬菜',prep:'切蔥花'}],
+steps:[{text:'雞蛋打散，太白粉加水調勻，蔥切花',duration:3,type:'active'},{text:'高湯煮滾，倒入太白粉水勾薄芡',duration:2,type:'active'},{text:'緩緩倒入蛋液形成蛋花，加鹽蔥花',duration:2,type:'active'}]},
+
+{id:'pork-cabbage',name:'五花肉炒高麗菜',emoji:'🥬',cuisine:['台式'],category:'main',tools:['中式炒菜鍋'],tags:['下飯','家常'],servings:2,totalTime:15,description:'五花油香讓高麗菜更鮮甜',
+ingredients:[{name:'豬五花肉片',amount:'150g',category:'肉類'},{name:'高麗菜',amount:'1/4顆',category:'蔬菜'},{name:'蒜頭',amount:'3瓣',category:'蔬菜',prep:'切末'},{name:'醬油',amount:'1匙',category:'調味料'}],
+steps:[{text:'高麗菜切塊，蒜末備好，五花肉切小片',duration:4,type:'active'},{text:'五花肉下乾鍋煸至油脂滲出微焦',duration:4,type:'active'},{text:'加蒜末，高麗菜大火翻炒，加醬油調味',duration:5,type:'active'}]},
+
+{id:'steamed-fish',name:'清蒸魚（電鍋）',emoji:'🐟',cuisine:['台式'],category:'main',tools:['電鍋'],tags:['清淡','健康'],servings:2,totalTime:20,description:'清爽鮮嫩',
+ingredients:[{name:'鱸魚/鯛魚',amount:'1條',category:'海鮮'},{name:'薑',amount:'5片',category:'蔬菜',prep:'切絲'},{name:'蔥',amount:'2根',category:'蔬菜',prep:'切段'},{name:'醬油',amount:'2匙',category:'調味料'},{name:'麻油',amount:'少許',category:'調味料',optional:true}],
+steps:[{text:'魚洗淨擦乾劃刀，薑切絲鋪底，蔥切段擺上',duration:4,type:'active'},{text:'放電鍋（外鍋半杯水）',duration:2,type:'active'},{text:'電鍋蒸魚',duration:12,type:'passive'},{text:'取出倒掉多餘水分，淋醬油',duration:2,type:'active'}]},
+
+{id:'steamed-rice',name:'電鍋白飯',emoji:'🍚',cuisine:['台式','主食'],category:'main',tools:['電鍋'],tags:['基礎','主食'],servings:2,totalTime:38,description:'萬用白飯',
+ingredients:[{name:'白米',amount:'1.5米杯',category:'主食'},{name:'水',amount:'約270ml',category:'其他'}],
+steps:[{text:'白米洗淨，加水（1:1.2比例）放電鍋',duration:3,type:'active'},{text:'外鍋加半杯水按下開關',duration:1,type:'active'},{text:'煮飯中',duration:30,type:'passive'},{text:'跳起後燜5分鐘，鬆飯',duration:5,type:'passive'}]},
+
+// ══ 日式 ══
+{id:'oyakodon',name:'親子丼',emoji:'🍚',cuisine:['日式'],category:'main',tools:['平底鍋','湯鍋'],tags:['丼飯','快速'],servings:1,totalTime:20,description:'雞肉嫩蛋滑',
+ingredients:[{name:'雞腿肉',amount:'150g',category:'肉類'},{name:'雞蛋',amount:'2顆',category:'蛋/豆腐'},{name:'洋蔥',amount:'半顆',category:'蔬菜',prep:'切絲'},{name:'醬油',amount:'2匙',category:'調味料'},{name:'味醂',amount:'2匙',category:'調味料'},{name:'高湯',amount:'80ml',category:'調味料'},{name:'糖',amount:'1茶匙',category:'調味料'}],
+steps:[{text:'雞腿切塊，洋蔥切絲，雞蛋打散',duration:5,type:'active'},{text:'小鍋加高湯、醬油、味醂、糖煮滾，洋蔥煮軟',duration:4,type:'active'},{text:'雞肉下鍋蓋鍋煮熟',duration:6,type:'passive'},{text:'轉大火，蛋液畫圈倒入，半熟時立刻關火',duration:2,type:'active',hint:'蛋白剛好定形但蛋黃還是液態時就關火，利用餘熱，蛋會更嫩。'},{text:'滑入飯上',duration:1,type:'active'}]},
+
+{id:'teriyaki',name:'照燒雞腿',emoji:'🍗',cuisine:['日式'],category:'main',tools:['平底鍋'],tags:['下飯','香甜'],servings:2,totalTime:25,description:'醬汁香甜，皮脆肉嫩',
+ingredients:[{name:'去骨雞腿',amount:'2片',category:'肉類'},{name:'醬油',amount:'2匙',category:'調味料'},{name:'味醂',amount:'2匙',category:'調味料'},{name:'清酒',amount:'1匙',category:'調味料',optional:true},{name:'糖',amount:'1茶匙',category:'調味料'}],
+steps:[{text:'雞腿厚處劃刀，拍乾；醬汁調好備用',duration:4,type:'active'},{text:'雞腿皮面朝下入乾鍋，中小火煎至金黃',duration:8,type:'active',hint:'雞皮含油脂，乾鍋（不加油）煎可讓皮更脆，不容易黏鍋。'},{text:'翻面繼續煎熟',duration:5,type:'active'},{text:'倒入照燒醬，翻面裹醬，大火收汁',duration:4,type:'active'}]},
+
+{id:'miso-soup',name:'日式味噌湯',emoji:'🍜',cuisine:['日式'],category:'soup',tools:['湯鍋'],tags:['湯','快速'],servings:2,totalTime:10,description:'暖胃百搭湯品',
+ingredients:[{name:'味噌',amount:'2匙',category:'調味料'},{name:'嫩豆腐',amount:'半盒',category:'蛋/豆腐'},{name:'乾海帶芽',amount:'適量',category:'乾貨'},{name:'蔥',amount:'少許',category:'蔬菜',prep:'切蔥花'}],
+steps:[{text:'海帶芽泡水，豆腐切小塊，蔥切花',duration:3,type:'active'},{text:'400ml水煮滾，加豆腐海帶芽',duration:3,type:'active'},{text:'味噌用少許湯溶開後加入（勿再煮滾），撒蔥花',duration:2,type:'active',hint:'味噌加入後不要再煮滾，會破壞風味和香氣。'}]},
+
+{id:'tamagoyaki',name:'玉子燒',emoji:'🍳',cuisine:['日式'],category:'main',tools:['平底鍋'],tags:['快速','蛋'],servings:1,totalTime:12,description:'甜甜鹹鹹，便當必備',
+ingredients:[{name:'雞蛋',amount:'3顆',category:'蛋/豆腐'},{name:'味醂',amount:'1匙',category:'調味料'},{name:'醬油',amount:'0.5茶匙',category:'調味料'},{name:'鹽',amount:'少許',category:'調味料'}],
+steps:[{text:'雞蛋打散，加味醂、醬油、鹽輕輕混勻',duration:3,type:'active'},{text:'小鍋熱油，倒入1/3蛋液',duration:1,type:'active'},{text:'半熟時從一端往另一端捲起，推到鍋邊補蛋液再捲',duration:4,type:'active'},{text:'再補蛋液繼續捲，整形取出',duration:3,type:'active'}]},
+// ══ 義式 ══
+{id:'tomato-pasta',name:'番茄肉醬義大利麵',emoji:'🍝',cuisine:['義式'],category:'main',tools:['湯鍋','平底鍋'],tags:['麵食','飽足'],servings:2,totalTime:35,description:'經典義式，肉醬濃郁',
+ingredients:[{name:'義大利麵',amount:'200g',category:'主食'},{name:'牛絞肉',amount:'150g',category:'肉類'},{name:'番茄罐頭',amount:'1罐',category:'罐頭/乾貨'},{name:'洋蔥',amount:'半顆',category:'蔬菜',prep:'切末'},{name:'蒜頭',amount:'3瓣',category:'蔬菜',prep:'切末'},{name:'橄欖油',amount:'2匙',category:'調味料'},{name:'鹽',amount:'適量',category:'調味料'},{name:'義式香料',amount:'1茶匙',category:'調味料',optional:true}],
+steps:[{text:'洋蔥切末，蒜末備好',duration:4,type:'active'},{text:'大量鹽水鍋加熱',duration:5,type:'passive',hint:'煮麵水要很鹹，像淡海水（每1L水加15g鹽），麵條才有味道。'},{text:'橄欖油炒香洋蔥至透明，加蒜末',duration:5,type:'active'},{text:'牛絞肉炒散，加番茄罐頭壓碎，加香料',duration:4,type:'active'},{text:'肉醬小火燉',duration:10,type:'passive'},{text:'水滾後義大利麵下鍋按包裝煮',duration:9,type:'passive'},{text:'麵撈起拌入肉醬，加鹽調味',duration:2,type:'active'}]},
+
+{id:'aglio-olio',name:'蒜香橄欖油義大利麵',emoji:'🍝',cuisine:['義式'],category:'main',tools:['湯鍋','平底鍋'],tags:['麵食','快速'],servings:2,totalTime:20,description:'最簡單的義大利麵',
+ingredients:[{name:'義大利麵',amount:'200g',category:'主食'},{name:'蒜頭',amount:'6瓣',category:'蔬菜',prep:'切薄片'},{name:'橄欖油',amount:'4匙',category:'調味料'},{name:'辣椒片',amount:'少許',category:'調味料',optional:true},{name:'鹽',amount:'適量',category:'調味料'}],
+steps:[{text:'鹽水鍋加熱，蒜頭切薄片',duration:5,type:'passive'},{text:'麵下鍋按包裝煮熟，保留一杯麵水',duration:9,type:'passive'},{text:'橄欖油冷鍋放蒜片，小火慢慢爆香至金黃，加辣椒片',duration:6,type:'active'},{text:'麵撈起拌入蒜油，麵水調濃稠，加鹽',duration:2,type:'active'}]},
+
+// ══ 美式 ══
+{id:'pan-chicken',name:'香煎雞胸佐蔬菜',emoji:'🍗',cuisine:['美式'],category:'main',tools:['平底鍋'],tags:['健康','低卡'],servings:2,totalTime:25,description:'健身族最愛，嫩口不柴',
+ingredients:[{name:'雞胸肉',amount:'2片',category:'肉類'},{name:'青花菜',amount:'半顆',category:'蔬菜'},{name:'橄欖油',amount:'2匙',category:'調味料'},{name:'鹽',amount:'適量',category:'調味料'},{name:'黑胡椒',amount:'適量',category:'調味料'},{name:'蒜粉',amount:'1茶匙',category:'調味料',optional:true}],
+steps:[{text:'雞胸拍乾，兩面撒鹽黑胡椒蒜粉醃漬',duration:3,type:'active'},{text:'青花菜切小朵，雞胸靜置',duration:3,type:'active'},{text:'雞胸靜置醃漬',duration:5,type:'passive'},{text:'橄欖油熱鍋，雞胸每面煎4-5分鐘不要動',duration:9,type:'active',hint:'煎的時候不要一直翻面，讓一面完全定形上色後再翻，這樣不會黏鍋也更香。'},{text:'雞胸取出靜置，原鍋炒青花菜加鹽',duration:4,type:'active'}]},
+
+{id:'butter-mushroom',name:'蒜香奶油蘑菇',emoji:'🍄',cuisine:['美式','義式'],category:'main',tools:['平底鍋'],tags:['快速','配菜'],servings:2,totalTime:12,description:'奶香蒜香完美結合',
+ingredients:[{name:'蘑菇',amount:'250g',category:'蔬菜'},{name:'奶油',amount:'1.5匙',category:'乳製品'},{name:'蒜頭',amount:'4瓣',category:'蔬菜',prep:'切末'},{name:'鹽',amount:'適量',category:'調味料'},{name:'黑胡椒',amount:'適量',category:'調味料'}],
+steps:[{text:'蘑菇切片，蒜頭切末',duration:3,type:'active'},{text:'奶油熱鍋，蘑菇下鍋不動讓其上色',duration:4,type:'active'},{text:'翻面，加蒜末炒香，加鹽黑胡椒',duration:3,type:'active'}]},
+
+// ══ 主食/麵食 ══
+{id:'scallion-noodle',name:'蔥油拌麵',emoji:'🍜',cuisine:['主食','台式'],category:'main',tools:['湯鍋'],tags:['快速','療癒'],servings:1,totalTime:15,description:'蔥油香氣四溢，最療癒',
+ingredients:[{name:'麵條',amount:'1人份',category:'主食'},{name:'蔥',amount:'3根',category:'蔬菜',prep:'切蔥花'},{name:'醬油',amount:'1.5匙',category:'調味料'},{name:'食用油',amount:'3匙',category:'調味料'},{name:'鹽',amount:'少許',category:'調味料'}],
+steps:[{text:'蔥切花，碗底調好醬汁',duration:3,type:'active'},{text:'煮麵水鍋加熱',duration:4,type:'passive'},{text:'小鍋熱油至冒煙，澆在蔥花上（嗞的一聲）',duration:2,type:'active',hint:'油一定要夠熱（冒煙狀態）才能逼出蔥香，油溫不夠蔥花只會悶熟不香。'},{text:'水滾後麵條煮熟，撈起放碗中拌勻',duration:4,type:'active'}]},
+
+{id:'fried-rice',name:'蛋炒飯',emoji:'🍳',cuisine:['主食','台式'],category:'main',tools:['中式炒菜鍋'],tags:['快速','剩飯'],servings:1,totalTime:12,description:'剩飯的好歸宿',
+ingredients:[{name:'隔夜白飯',amount:'1碗',category:'主食'},{name:'雞蛋',amount:'2顆',category:'蛋/豆腐'},{name:'蔥',amount:'2根',category:'蔬菜',prep:'切蔥花'},{name:'醬油',amount:'1匙',category:'調味料'},{name:'鹽',amount:'適量',category:'調味料'}],
+steps:[{text:'蛋打散，蔥切花，冷飯捏散',duration:3,type:'active'},{text:'大火熱鍋下多一點油，蛋液快速炒散',duration:2,type:'active'},{text:'飯下鍋大火拌炒讓每粒分開',duration:4,type:'active'},{text:'淋醬油沿鍋邊炒勻，加鹽，撒蔥花',duration:2,type:'active'}]},
+
+{id:'kimchi-rice',name:'泡菜炒飯',emoji:'🍚',cuisine:['主食','韓式'],category:'main',tools:['中式炒菜鍋'],tags:['快速','酸辣'],servings:1,totalTime:12,description:'酸辣爽口，最下飯',
+ingredients:[{name:'隔夜白飯',amount:'1碗',category:'主食'},{name:'韓式泡菜',amount:'100g',category:'罐頭/乾貨'},{name:'雞蛋',amount:'1顆',category:'蛋/豆腐'},{name:'豬肉片',amount:'80g',category:'肉類',optional:true},{name:'醬油',amount:'0.5匙',category:'調味料'},{name:'麻油',amount:'少許',category:'調味料',optional:true}],
+steps:[{text:'泡菜切碎，冷飯捏散',duration:2,type:'active'},{text:'熱鍋下油，豬肉片炒熟盛起',duration:3,type:'active'},{text:'泡菜下鍋炒香，加飯大火翻炒',duration:4,type:'active'},{text:'加豬肉醬油翻勻；鍋邊煎荷包蛋放飯上，淋麻油',duration:3,type:'active'}]},
+
+// ══ 中式 ══
+{id:'kungpao-chicken',name:'宮保雞丁',emoji:'🍗',cuisine:['中式'],category:'main',tools:['中式炒菜鍋'],tags:['下飯','辣'],servings:2,totalTime:25,description:'花椒辣椒香，下飯一流',
+ingredients:[{name:'雞胸肉',amount:'250g',category:'肉類'},{name:'乾辣椒',amount:'8根',category:'調味料'},{name:'花椒',amount:'1茶匙',category:'調味料',optional:true},{name:'花生',amount:'50g',category:'乾貨'},{name:'蔥',amount:'2根',category:'蔬菜',prep:'切蔥段'},{name:'醬油',amount:'2匙',category:'調味料'},{name:'米酒',amount:'1匙',category:'調味料'},{name:'醋',amount:'1茶匙',category:'調味料'},{name:'糖',amount:'1茶匙',category:'調味料'},{name:'太白粉',amount:'2茶匙',category:'調味料'}],
+steps:[{text:'雞胸切丁，用醬油、太白粉、米酒醃10分鐘',duration:3,type:'active'},{text:'雞肉靜置醃漬',duration:10,type:'passive'},{text:'調好醬汁（醬油、醋、糖、太白粉水）',duration:2,type:'active'},{text:'熱鍋下油，乾辣椒花椒爆香至微焦香',duration:2,type:'active',hint:'乾辣椒花椒要用中小火炒，炒到顏色加深、香氣出來就好，炒過頭會苦。'},{text:'雞丁下鍋大火炒至表面熟',duration:3,type:'active'},{text:'加蔥段、花生，倒入醬汁翻炒收汁',duration:3,type:'active'}]},
+
+{id:'green-pepper-pork',name:'青椒肉絲',emoji:'🌶️',cuisine:['中式'],category:'main',tools:['中式炒菜鍋'],tags:['家常','快速'],servings:2,totalTime:20,description:'清爽下飯的家常菜',
+ingredients:[{name:'豬里肌肉',amount:'200g',category:'肉類'},{name:'青椒',amount:'2顆',category:'蔬菜'},{name:'醬油',amount:'1.5匙',category:'調味料'},{name:'米酒',amount:'1匙',category:'調味料'},{name:'太白粉',amount:'1茶匙',category:'調味料'},{name:'鹽',amount:'適量',category:'調味料'},{name:'食用油',amount:'2匙',category:'調味料'}],
+steps:[{text:'豬肉切絲，加醬油、太白粉、米酒醃10分鐘',duration:3,type:'active'},{text:'肉絲靜置醃漬，青椒切絲',duration:10,type:'passive'},{text:'熱鍋下油，肉絲大火炒至變色盛起',duration:3,type:'active'},{text:'原鍋炒青椒，加肉絲翻炒，加鹽調味',duration:3,type:'active'}]},
+
+{id:'braised-eggplant',name:'紅燒茄子',emoji:'🍆',cuisine:['中式'],category:'main',tools:['中式炒菜鍋'],tags:['下飯','素'],servings:2,totalTime:20,description:'入味軟糯，超下飯',
+ingredients:[{name:'茄子',amount:'2條',category:'蔬菜'},{name:'蒜頭',amount:'4瓣',category:'蔬菜',prep:'切末'},{name:'醬油',amount:'2匙',category:'調味料'},{name:'糖',amount:'1茶匙',category:'調味料'},{name:'太白粉',amount:'1茶匙',category:'調味料'},{name:'食用油',amount:'3匙',category:'調味料'},{name:'蔥',amount:'少許',category:'蔬菜',prep:'切蔥花'}],
+steps:[{text:'茄子切滾刀塊，稍微用鹽抓一下出水',duration:5,type:'active'},{text:'熱鍋多油，茄子下鍋炒至軟化',duration:5,type:'active',hint:'茄子很吸油，炒的時候不要心疼用油，否則茄子會變黑變硬。'},{text:'加蒜末爆香，加醬油、糖和少許水',duration:3,type:'active'},{text:'小火燜煮入味，太白粉水勾薄芡，撒蔥花',duration:4,type:'active'}]},
+
+// ══ 韓式 ══
+{id:'tteokbokki',name:'韓式炒年糕',emoji:'🌶️',cuisine:['韓式'],category:'main',tools:['平底鍋','湯鍋'],tags:['辣甜','快速'],servings:2,totalTime:20,description:'辣甜Q彈，韓式小吃',
+ingredients:[{name:'韓式年糕',amount:'300g',category:'主食'},{name:'韓式辣醬',amount:'2匙',category:'調味料'},{name:'醬油',amount:'1匙',category:'調味料'},{name:'糖',amount:'1匙',category:'調味料'},{name:'魚板',amount:'2片',category:'海鮮',optional:true},{name:'蔥',amount:'2根',category:'蔬菜',prep:'切蔥花'}],
+steps:[{text:'年糕泡冷水15分鐘軟化（若是冷凍的）',duration:3,type:'active',hint:'冷凍年糕要先泡冷水軟化，直接下鍋容易外熟內硬。'},{text:'年糕靜置泡水',duration:12,type:'passive'},{text:'鍋中加400ml水、辣醬、醬油、糖，煮滾',duration:3,type:'active'},{text:'年糕和魚板下鍋，中火煮至湯汁濃稠，撒蔥花',duration:5,type:'active'}]},
+
+{id:'army-stew',name:'部隊鍋',emoji:'🍲',cuisine:['韓式'],category:'soup',tools:['湯鍋'],tags:['豐盛','韓式'],servings:2,totalTime:25,description:'料多豐盛，暖胃暖心',
+ingredients:[{name:'午餐肉',amount:'半罐',category:'罐頭/乾貨'},{name:'韓式泡菜',amount:'150g',category:'罐頭/乾貨'},{name:'嫩豆腐',amount:'半盒',category:'蛋/豆腐'},{name:'泡麵（可省）',amount:'1包',category:'主食',optional:true},{name:'韓式辣醬',amount:'1匙',category:'調味料'},{name:'醬油',amount:'1匙',category:'調味料'},{name:'蔥',amount:'2根',category:'蔬菜',prep:'切段'}],
+steps:[{text:'午餐肉切片，豆腐切塊，蔥切段',duration:4,type:'active'},{text:'鍋中加水（約600ml），加辣醬、醬油煮滾',duration:5,type:'active'},{text:'泡菜、午餐肉、豆腐下鍋，中火煮10分鐘',duration:10,type:'passive'},{text:'可加泡麵煮至熟，撒蔥段',duration:4,type:'active'}]},
+
+// ══ 法式 ══
+{id:'french-eggs',name:'法式炒蛋',emoji:'🍳',cuisine:['法式'],category:'main',tools:['平底鍋'],tags:['快速','早午餐'],servings:1,totalTime:12,description:'滑嫩細緻，法式早午餐',
+ingredients:[{name:'雞蛋',amount:'3顆',category:'蛋/豆腐'},{name:'奶油',amount:'15g',category:'乳製品'},{name:'鹽',amount:'少許',category:'調味料'},{name:'黑胡椒',amount:'少許',category:'調味料'},{name:'鮮奶油',amount:'1匙',category:'乳製品',optional:true}],
+steps:[{text:'雞蛋打散加鹽，鮮奶油可加可不加',duration:2,type:'active'},{text:'平底鍋開小火，放奶油融化',duration:2,type:'active',hint:'法式炒蛋全程用小火，持續緩慢攪拌，讓蛋液慢慢凝固，做出滑嫩如奶油的質地。完全不同於一般炒蛋的做法。'},{text:'蛋液倒入，用矽膠刮刀持續緩慢攪拌（全程小火）',duration:5,type:'active'},{text:'蛋液呈滑嫩奶霜狀（未完全固體）即可起鍋，撒黑胡椒',duration:2,type:'active'}]},
+
+{id:'french-onion-soup',name:'法式洋蔥湯',emoji:'🧅',cuisine:['法式'],category:'soup',tools:['湯鍋','烤箱'],tags:['湯','濃郁'],servings:2,totalTime:55,description:'焦糖洋蔥湯底，香甜濃郁',
+ingredients:[{name:'洋蔥',amount:'3顆',category:'蔬菜'},{name:'奶油',amount:'30g',category:'乳製品'},{name:'牛高湯（或水）',amount:'600ml',category:'調味料'},{name:'白酒',amount:'50ml',category:'調味料',optional:true},{name:'法棍麵包',amount:'4片',category:'主食',optional:true},{name:'乳酪絲',amount:'適量',category:'乳製品',optional:true},{name:'鹽',amount:'適量',category:'調味料'},{name:'黑胡椒',amount:'少許',category:'調味料'}],
+steps:[{text:'洋蔥切薄絲',duration:5,type:'active'},{text:'奶油熱鍋，洋蔥下鍋小火慢炒',duration:5,type:'active'},{text:'洋蔥慢炒至深焦糖色（需耐心）',duration:25,type:'passive',hint:'洋蔥要炒到深焦糖色（深棕色），這個過程要30-35分鐘。不要急，這是湯底甜度的關鍵。'},{text:'加白酒煮滾，加高湯、鹽、黑胡椒，小火煮15分鐘',duration:15,type:'passive'},{text:'（選填）湯盛入碗，放法棍、鋪乳酪，送烤箱200度烤至乳酪融化',duration:8,type:'active'}]},
+
+// ══ 甜品 ══
+{id:'rice-cooker-pudding',name:'電鍋布丁',emoji:'🍮',cuisine:['台式','其他'],category:'dessert',tools:['電鍋'],tags:['甜品','電鍋'],servings:2,totalTime:40,description:'滑嫩焦糖布丁，免烤箱',
+ingredients:[{name:'雞蛋',amount:'2顆',category:'蛋/豆腐'},{name:'牛奶',amount:'200ml',category:'乳製品'},{name:'糖',amount:'3匙',category:'調味料'},{name:'香草精',amount:'少許',category:'調味料',optional:true}],
+steps:[{text:'雞蛋打散加牛奶、1匙糖、香草精，混勻過篩',duration:4,type:'active'},{text:'另取2匙糖加少許水，小火煮成焦糖色倒入模具底部',duration:5,type:'active',hint:'焦糖糖漿要觀察顏色，變成深琥珀色（深咖啡色）立刻倒入模具，太淺沒香氣，太深會苦。'},{text:'蛋液輕輕倒入模具，蓋保鮮膜',duration:2,type:'active'},{text:'放電鍋（外鍋半杯水）蒸',duration:15,type:'passive'},{text:'跳起後取出放涼，冷藏30分鐘再倒扣',duration:5,type:'passive'}]},
+
+// ══ 烏龍麵 ══
+{id:'kamatama-udon',name:'釜玉烏龍麵',emoji:'🍜',cuisine:['日式'],category:'main',tools:['湯鍋'],tags:['快速','日式','麵食'],servings:1,totalTime:12,description:'生蛋拌烏龍，滑順鮮甜',
+ingredients:[{name:'烏龍麵（冷凍）',amount:'1份',category:'主食'},{name:'雞蛋',amount:'1顆',category:'蛋/豆腐'},{name:'醬油',amount:'1.5匙',category:'調味料'},{name:'柴魚片',amount:'適量',category:'乾貨',optional:true},{name:'蔥花',amount:'少許',category:'蔬菜',prep:'切蔥花'}],
+steps:[{text:'滾水煮烏龍麵約1-2分鐘至熟，撈起瀝乾',duration:4,type:'active',hint:'冷凍烏龍麵直接下滾水，不需解凍，水再度滾起後煮約1分鐘即可。'},{text:'趁熱放碗，立刻打入生蛋、淋醬油，快速拌勻讓蛋裹附麵條',duration:2,type:'active',hint:'麵要夠熱才能讓生蛋半熟，動作要快。'},{text:'撒柴魚片、蔥花即可',duration:1,type:'active'}]},
+
+{id:'beef-udon',name:'牛肉烏龍湯麵',emoji:'🍜',cuisine:['日式'],category:'main',tools:['湯鍋'],tags:['日式','麵食','湯麵'],servings:1,totalTime:20,description:'日式高湯底，牛肉滑嫩',
+ingredients:[{name:'烏龍麵',amount:'1份',category:'主食'},{name:'牛肉薄片',amount:'80g',category:'肉類'},{name:'日式醬油',amount:'2匙',category:'調味料'},{name:'味醂',amount:'1匙',category:'調味料'},{name:'高湯（或水+柴魚包）',amount:'400ml',category:'調味料'},{name:'蔥',amount:'1根',category:'蔬菜',prep:'切蔥花'}],
+steps:[{text:'蔥切花備用，高湯加醬油味醂煮滾調成湯底',duration:5,type:'active'},{text:'烏龍麵下滾水煮熟，撈入碗中',duration:4,type:'active'},{text:'牛肉片放入湯底燙至剛熟（粉紅消失即可）',duration:2,type:'active',hint:'牛肉片很薄，湯滾後放入10-15秒就熟，過久會老。'},{text:'湯倒入碗，牛肉擺上，撒蔥花',duration:1,type:'active'}]},
+
+// ══ 更多義大利麵 ══
+{id:'carbonara',name:'卡邦尼義大利麵（直麵）',emoji:'🍝',cuisine:['義式'],category:'main',tools:['湯鍋','平底鍋'],tags:['麵食','奶香','義式'],servings:2,totalTime:25,description:'羅馬經典，不加鮮奶油的正宗版',
+ingredients:[{name:'義大利直麵 Spaghetti',amount:'200g',category:'主食'},{name:'培根（或義式豬臉頰肉）',amount:'100g',category:'肉類'},{name:'雞蛋',amount:'2顆',category:'蛋/豆腐'},{name:'蛋黃',amount:'2顆',category:'蛋/豆腐'},{name:'帕馬森起司',amount:'50g',category:'乳製品'},{name:'黑胡椒',amount:'大量',category:'調味料'},{name:'鹽',amount:'適量',category:'調味料'}],
+steps:[{text:'大量鹽水煮滾',duration:5,type:'passive'},{text:'起司磨碎，蛋+蛋黃打散，混合起司和大量黑胡椒成醬汁',duration:4,type:'active',hint:'卡邦尼不用鮮奶油！是蛋+起司的乳化醬汁，這才是正宗。'},{text:'麵下鍋按包裝時間煮，撈起前留一大杯麵水',duration:10,type:'passive'},{text:'培根下乾鍋煎至焦脆，鍋離火稍微放涼',duration:4,type:'active',hint:'鍋一定要離火再加蛋醬，溫度太高蛋會炒熟變蛋花，要讓餘熱緩慢乳化。'},{text:'熱麵撈入鍋，加蛋醬快速拌勻，加麵水調整濃稠度',duration:2,type:'active'}]},
+
+{id:'pesto-pasta',name:'青醬細扁麵（Linguine）',emoji:'🍝',cuisine:['義式'],category:'main',tools:['湯鍋'],tags:['麵食','義式','清爽'],servings:2,totalTime:20,description:'羅勒香氣濃郁，夏天最清爽',
+ingredients:[{name:'義大利細扁麵 Linguine',amount:'200g',category:'主食'},{name:'市售青醬',amount:'4匙',category:'調味料'},{name:'帕馬森起司（可省）',amount:'適量',category:'乳製品',optional:true},{name:'松子（可省）',amount:'少許',category:'乾貨',optional:true},{name:'鹽',amount:'適量',category:'調味料'}],
+steps:[{text:'大量鹽水煮滾',duration:5,type:'passive',hint:'煮麵水每公升加15g鹽，麵條才有底味。'},{text:'麵下鍋按包裝煮熟，撈起前留半杯麵水',duration:10,type:'passive'},{text:'麵撈起，趁熱加青醬拌勻，麵水調整濃稠度，撒起司和松子',duration:2,type:'active'}]},
+
+{id:'arrabbiata',name:'阿拉比亞塔辣番茄筆管麵（Penne）',emoji:'🍝',cuisine:['義式'],category:'main',tools:['湯鍋','平底鍋'],tags:['麵食','義式','辣'],servings:2,totalTime:25,description:'辣、酸、香，義大利最入味的醬',
+ingredients:[{name:'筆管麵 Penne',amount:'200g',category:'主食'},{name:'番茄罐頭',amount:'1罐',category:'罐頭/乾貨'},{name:'蒜頭',amount:'4瓣',category:'蔬菜',prep:'切末'},{name:'乾辣椒',amount:'2根',category:'調味料'},{name:'橄欖油',amount:'3匙',category:'調味料'},{name:'鹽',amount:'適量',category:'調味料'}],
+steps:[{text:'鹽水煮滾',duration:5,type:'passive'},{text:'橄欖油小火爆香蒜末和乾辣椒至金黃',duration:4,type:'active',hint:'阿拉比亞塔的靈魂是辣蒜油，要用小火慢慢炒，讓辣椒香氣完全釋放。'},{text:'加番茄罐頭壓碎，中火熬煮收汁',duration:8,type:'passive'},{text:'筆管麵按包裝煮熟',duration:10,type:'passive'},{text:'麵撈起拌入醬汁，加鹽調味',duration:2,type:'active'}]},
+
+// ══ 千層麵 ══
+{id:'lasagna',name:'千層麵',emoji:'🍝',cuisine:['義式'],category:'main',tools:['烤箱','湯鍋','平底鍋'],tags:['義式','烤箱','豐盛'],servings:4,totalTime:75,description:'層層堆疊，烤出金黃起司殼',
+ingredients:[{name:'千層麵片',amount:'9片',category:'主食'},{name:'牛絞肉',amount:'300g',category:'肉類'},{name:'番茄罐頭',amount:'1罐',category:'罐頭/乾貨'},{name:'洋蔥',amount:'1顆',category:'蔬菜',prep:'切末'},{name:'奶油',amount:'30g',category:'乳製品'},{name:'麵粉',amount:'30g',category:'調味料'},{name:'牛奶',amount:'400ml',category:'乳製品'},{name:'莫扎瑞拉起司',amount:'150g',category:'乳製品'},{name:'帕馬森起司',amount:'50g',category:'乳製品'},{name:'鹽',amount:'適量',category:'調味料'}],
+steps:[{text:'炒香洋蔥，加絞肉炒散，加番茄罐頭小火燉肉醬20分鐘',duration:8,type:'active'},{text:'肉醬燉煮',duration:20,type:'passive'},{text:'另鍋融化奶油，加麵粉炒1分鐘，慢慢加牛奶不停攪拌成白醬',duration:8,type:'active',hint:'白醬要全程小火，一邊加牛奶一邊快速攪拌，避免結塊。'},{text:'烤盤底層舖白醬，放千層麵片、肉醬、白醬，重複三層，最上層舖起司',duration:8,type:'active'},{text:'烤箱預熱180度，烤35分鐘至表面金黃起泡',duration:35,type:'passive'}]},
+
+// ══ 美式 ══
+{id:'burger',name:'美式漢堡',emoji:'🍔',cuisine:['美式'],category:'main',tools:['平底鍋'],tags:['美式','豐盛'],servings:2,totalTime:25,description:'自製漢堡排，比外賣更新鮮',
+ingredients:[{name:'牛絞肉（七分瘦）',amount:'300g',category:'肉類'},{name:'漢堡麵包',amount:'2個',category:'主食'},{name:'起司片',amount:'2片',category:'乳製品',optional:true},{name:'生菜',amount:'適量',category:'蔬菜'},{name:'番茄',amount:'1顆',category:'蔬菜',prep:'切片'},{name:'美乃滋',amount:'適量',category:'調味料'},{name:'番茄醬',amount:'適量',category:'調味料'},{name:'鹽',amount:'適量',category:'調味料'},{name:'黑胡椒',amount:'適量',category:'調味料'}],
+steps:[{text:'牛絞肉加鹽黑胡椒混勻，捏成2個肉排（稍微大於麵包，煎後會縮）',duration:4,type:'active',hint:'肉排中央用拇指壓一個凹陷，煎的時候中心才不會鼓起來。'},{text:'鍋子大火預熱，肉排下鍋每面煎3-4分鐘不要動',duration:8,type:'active'},{text:'翻面後鋪起司片，蓋鍋30秒讓起司融化',duration:2,type:'active'},{text:'麵包切半，乾鍋烘至切面微焦',duration:3,type:'active'},{text:'組裝：麵包→醬→生菜→番茄→肉排→蓋上',duration:2,type:'active'}]},
+
+{id:'fries',name:'氣炸薯條',emoji:'🍟',cuisine:['美式'],category:'main',tools:['氣炸鍋'],tags:['美式','快速','配菜'],servings:2,totalTime:30,description:'外脆內軟，比速食店更健康',
+ingredients:[{name:'馬鈴薯',amount:'2顆',category:'蔬菜'},{name:'橄欖油',amount:'1匙',category:'調味料'},{name:'鹽',amount:'適量',category:'調味料'},{name:'蒜粉',amount:'少許',category:'調味料',optional:true}],
+steps:[{text:'馬鈴薯切條（約1cm寬），泡冷水10分鐘去澱粉',duration:5,type:'active'},{text:'泡水去澱粉',duration:10,type:'passive'},{text:'擦乾水分，拌入橄欖油鹽蒜粉',duration:2,type:'active'},{text:'氣炸鍋180度預熱，薯條放入不要重疊，炸12分鐘中間翻面一次',duration:13,type:'passive',hint:'一定要擦乾再放，水分是影響脆度的最大關鍵。氣炸中間翻面讓均勻上色。'}]},
+
+// ══ 更多湯品 ══
+{id:'corn-soup',name:'奶油玉米濃湯',emoji:'🌽',cuisine:['美式','台式'],category:'soup',tools:['湯鍋'],tags:['湯','濃湯','快速'],servings:2,totalTime:15,description:'香甜濃郁，冬天必喝',
+ingredients:[{name:'玉米罐頭（奶油款）',amount:'1罐',category:'罐頭/乾貨'},{name:'牛奶',amount:'200ml',category:'乳製品'},{name:'奶油',amount:'10g',category:'乳製品'},{name:'鹽',amount:'適量',category:'調味料'},{name:'黑胡椒',amount:'少許',category:'調味料'},{name:'太白粉',amount:'1茶匙',category:'調味料',optional:true}],
+steps:[{text:'湯鍋加奶油融化，倒入玉米罐頭和牛奶，中火攪拌煮滾',duration:5,type:'active'},{text:'煮滾後轉小火燉煮3分鐘讓味道融合',duration:3,type:'passive'},{text:'加鹽黑胡椒調味，可加太白粉水勾芡增稠',duration:2,type:'active'}]},
+
+{id:'tomato-beef-soup',name:'羅宋湯',emoji:'🍅',cuisine:['台式'],category:'soup',tools:['湯鍋'],tags:['湯','燉湯','豐盛'],servings:4,totalTime:60,description:'番茄牛肉酸甜燉湯，越燉越香',
+ingredients:[{name:'牛腩',amount:'400g',category:'肉類'},{name:'番茄',amount:'3顆',category:'蔬菜'},{name:'洋蔥',amount:'1顆',category:'蔬菜'},{name:'紅蘿蔔',amount:'1根',category:'蔬菜'},{name:'馬鈴薯',amount:'2顆',category:'蔬菜'},{name:'番茄醬',amount:'2匙',category:'調味料'},{name:'鹽',amount:'適量',category:'調味料'},{name:'月桂葉',amount:'2片',category:'調味料',optional:true}],
+steps:[{text:'牛腩切塊汆燙去腥，蔬菜切塊',duration:8,type:'active'},{text:'洋蔥下鍋炒軟，加番茄炒出汁，加番茄醬炒香',duration:5,type:'active'},{text:'加牛腩、紅蘿蔔、月桂葉和足量水，大火煮滾',duration:5,type:'active'},{text:'轉小火燉煮',duration:30,type:'passive',hint:'至少燉30分鐘讓牛腩軟化，越燉越好喝。有壓力鍋的話15分鐘就夠。'},{text:'加馬鈴薯再燉10分鐘至軟，加鹽調味',duration:10,type:'passive'}]},
+
+{id:'pumpkin-cream-soup',name:'法式南瓜濃湯',emoji:'🎃',cuisine:['法式'],category:'soup',tools:['湯鍋'],tags:['湯','濃湯','法式'],servings:2,totalTime:35,description:'絲滑濃郁，餐廳等級',
+ingredients:[{name:'南瓜',amount:'400g',category:'蔬菜'},{name:'洋蔥',amount:'半顆',category:'蔬菜',prep:'切末'},{name:'奶油',amount:'15g',category:'乳製品'},{name:'高湯（或水）',amount:'400ml',category:'調味料'},{name:'動物鮮奶油',amount:'50ml',category:'乳製品',optional:true},{name:'鹽',amount:'適量',category:'調味料'},{name:'黑胡椒',amount:'適量',category:'調味料'}],
+steps:[{text:'南瓜去皮切塊，洋蔥切末',duration:6,type:'active'},{text:'奶油炒軟洋蔥末，南瓜下鍋翻炒2分鐘',duration:4,type:'active'},{text:'加高湯蓋過食材，蓋鍋中火煮20分鐘至南瓜全熟',duration:20,type:'passive'},{text:'用手持攪拌棒（或果汁機）打成滑順濃湯，加鹽調味，淋鮮奶油',duration:3,type:'active',hint:'沒有攪拌棒的話，用叉子壓成泥也可以，口感更粗曠一點。'}]},
+
+{id:'kimchi-jjigae',name:'韓式泡菜鍋',emoji:'🌶️',cuisine:['韓式'],category:'soup',tools:['湯鍋'],tags:['湯','韓式','辣'],servings:2,totalTime:25,description:'下飯又暖胃，韓式家常鍋',
+ingredients:[{name:'韓式泡菜',amount:'200g',category:'罐頭/乾貨'},{name:'豬五花肉片',amount:'150g',category:'肉類'},{name:'嫩豆腐',amount:'半盒',category:'蛋/豆腐'},{name:'韓式辣醬',amount:'1匙',category:'調味料'},{name:'醬油',amount:'1匙',category:'調味料'},{name:'蔥',amount:'2根',category:'蔬菜',prep:'切段'},{name:'蒜末',amount:'1茶匙',category:'蔬菜'}],
+steps:[{text:'豬肉片下鍋炒出油脂，加泡菜一起炒香',duration:4,type:'active'},{text:'加水（500ml）、辣醬、醬油、蒜末，大火煮滾',duration:5,type:'active'},{text:'小火燉煮10分鐘讓湯底入味',duration:10,type:'passive'},{text:'豆腐切塊輕輕放入再煮3分鐘，撒蔥段',duration:3,type:'active'}]},
+
+// ══ 更多甜品 ══
+{id:'pancakes',name:'美式鬆餅',emoji:'🥞',cuisine:['美式'],category:'dessert',tools:['平底鍋'],tags:['甜品','早午餐','美式'],servings:2,totalTime:20,description:'蓬鬆厚實，搭楓糖漿超幸福',
+ingredients:[{name:'低筋麵粉',amount:'150g',category:'調味料'},{name:'雞蛋',amount:'1顆',category:'蛋/豆腐'},{name:'牛奶',amount:'150ml',category:'乳製品'},{name:'泡打粉',amount:'1茶匙',category:'調味料'},{name:'糖',amount:'1匙',category:'調味料'},{name:'奶油（融化）',amount:'20g',category:'乳製品'},{name:'楓糖漿',amount:'適量',category:'調味料',optional:true}],
+steps:[{text:'乾料（麵粉、泡打粉、糖）混勻，加蛋、牛奶、融化奶油攪拌至剛好無粉塊（不要過度攪拌）',duration:4,type:'active',hint:'麵糊不要攪太均勻，稍微有小塊是正常的，過度攪拌會讓麩質產生，鬆餅會變硬。'},{text:'麵糊靜置5分鐘',duration:5,type:'passive'},{text:'平底鍋小火熱鍋（不加油），舀一大匙麵糊，表面出現氣泡後翻面',duration:8,type:'active',hint:'等到表面氣泡開始破掉才翻面，翻面後只需要1分鐘，不要一直翻。'},{text:'翻面再煎1分鐘，重複至麵糊用完',duration:3,type:'active'}]},
+
+{id:'mango-sago',name:'芒果西米露',emoji:'🥭',cuisine:['台式'],category:'dessert',tools:['湯鍋'],tags:['甜品','冷甜品','夏天'],servings:2,totalTime:25,description:'夏天必備，清涼消暑',
+ingredients:[{name:'芒果',amount:'1顆（或冷凍芒果丁）',category:'蔬菜'},{name:'西谷米',amount:'50g',category:'乾貨'},{name:'椰奶',amount:'200ml',category:'罐頭/乾貨'},{name:'糖',amount:'2匙',category:'調味料'},{name:'冰塊',amount:'適量',category:'其他',optional:true}],
+steps:[{text:'滾水煮西谷米，不斷攪拌約12分鐘至中心只剩一小白點',duration:5,type:'active'},{text:'持續煮至完全透明',duration:10,type:'passive',hint:'西谷米煮到全透明（沒有白心）才算熟，撈起泡冷水可以停止加熱並讓口感更Q彈。'},{text:'撈出泡冷水，瀝乾',duration:2,type:'active'},{text:'芒果切丁，椰奶加糖調勻，加西谷米，鋪芒果，加冰塊',duration:3,type:'active'}]},
+
+{id:'matcha-pudding',name:'抹茶奶酪',emoji:'🍵',cuisine:['日式'],category:'dessert',tools:['湯鍋'],tags:['甜品','日式','冷甜品'],servings:4,totalTime:20,description:'滑嫩帶苦甘，冷藏後更好吃',
+ingredients:[{name:'牛奶',amount:'400ml',category:'乳製品'},{name:'動物鮮奶油',amount:'100ml',category:'乳製品'},{name:'糖',amount:'3匙',category:'調味料'},{name:'抹茶粉',amount:'2茶匙',category:'調味料'},{name:'吉利丁片',amount:'3片（約7g）',category:'乾貨'}],
+steps:[{text:'吉利丁片泡冷水軟化5分鐘',duration:2,type:'active'},{text:'靜置泡軟',duration:5,type:'passive'},{text:'牛奶+鮮奶油+糖小火加熱至快沸騰（勿滾），加抹茶粉攪拌均勻',duration:5,type:'active',hint:'抹茶先用少量熱牛奶調成糊再倒入，比較不會結塊。'},{text:'吉利丁擰乾水分，加入熱牛奶攪拌至完全融化',duration:2,type:'active'},{text:'過篩倒入模具，冷藏4小時以上至凝固',duration:2,type:'active'}]},
+
+
+// ══ 更多台式 ══
+{id:'soy-chicken',name:'蔥油雞',emoji:'🍗',cuisine:['台式'],category:'main',tools:['湯鍋'],tags:['清淡','下飯'],servings:2,totalTime:30,description:'雞皮Q彈，淋蔥油超香',
+ingredients:[{name:'雞腿',amount:'2支',category:'肉類'},{name:'蔥',amount:'4根',category:'蔬菜',prep:'切蔥花'},{name:'薑',amount:'5片',category:'蔬菜'},{name:'鹽',amount:'適量',category:'調味料'},{name:'食用油',amount:'3匙',category:'調味料'}],
+steps:[{text:'雞腿放鍋，加薑片和足量水，煮滾轉中小火煮20分鐘',duration:22,type:'passive',hint:'竹籤刺入最厚處，流出透明汁液就熟了。'},{text:'雞腿取出放涼斬件裝盤',duration:4,type:'active'},{text:'熱油至冒煙，澆在蔥花上嗞一聲，加鹽成蔥油，淋雞上',duration:2,type:'active'}]},
+
+{id:'salted-egg-bittergourd',name:'鹹蛋炒苦瓜',emoji:'🥚',cuisine:['台式'],category:'main',tools:['中式炒菜鍋'],tags:['下飯','台式'],servings:2,totalTime:15,description:'鹹香微苦，超級下飯',
+ingredients:[{name:'苦瓜',amount:'1條',category:'蔬菜'},{name:'熟鹹蛋',amount:'2顆',category:'蛋/豆腐'},{name:'蒜頭',amount:'3瓣',category:'蔬菜',prep:'切末'},{name:'食用油',amount:'2匙',category:'調味料'},{name:'鹽',amount:'少許',category:'調味料'}],
+steps:[{text:'苦瓜去籽切薄片，鹹蛋黃白分開切碎',duration:5,type:'active',hint:'苦瓜去白膜後用鹽醃5分鐘洗淨，可減苦味。'},{text:'熱油下鹹蛋黃炒出金沙泡沫',duration:2,type:'active'},{text:'加蒜末、苦瓜翻炒，加蛋白炒熟，加鹽調味',duration:5,type:'active'}]},
+
+{id:'hakka-stir',name:'客家小炒',emoji:'🥩',cuisine:['台式'],category:'main',tools:['中式炒菜鍋'],tags:['下飯','香氣'],servings:2,totalTime:20,description:'豆干魷魚辣椒，香氣濃烈',
+ingredients:[{name:'豬五花肉片',amount:'150g',category:'肉類'},{name:'豆干',amount:'3塊',category:'蛋/豆腐',prep:'切片'},{name:'泡發魷魚',amount:'100g',category:'海鮮',prep:'切段'},{name:'青蔥',amount:'3根',category:'蔬菜',prep:'切段'},{name:'辣椒',amount:'2根',category:'蔬菜',prep:'切段'},{name:'醬油',amount:'2匙',category:'調味料'},{name:'米酒',amount:'1匙',category:'調味料'}],
+steps:[{text:'五花肉下乾鍋煸至微焦出油，加豆干炒',duration:5,type:'active'},{text:'加魷魚炒至邊緣微焦',duration:3,type:'active',hint:'要炒到食材邊緣微焦，才有乾香味。'},{text:'加蔥段、辣椒、醬油、米酒，大火翻炒起鍋',duration:3,type:'active'}]},
+
+{id:'stir-rice-noodle',name:'台式炒米粉',emoji:'🍜',cuisine:['台式','主食'],category:'main',tools:['中式炒菜鍋'],tags:['主食','家常'],servings:2,totalTime:20,description:'傳統台味，鹹香入味',
+ingredients:[{name:'米粉',amount:'150g',category:'主食'},{name:'豬肉絲',amount:'100g',category:'肉類'},{name:'高麗菜',amount:'1/4顆',category:'蔬菜',prep:'切絲'},{name:'紅蘿蔔',amount:'半根',category:'蔬菜',prep:'切絲'},{name:'乾香菇',amount:'4朵',category:'乾貨',prep:'泡軟切絲'},{name:'醬油',amount:'2匙',category:'調味料'},{name:'鹽',amount:'適量',category:'調味料'},{name:'食用油',amount:'2匙',category:'調味料'}],
+steps:[{text:'米粉泡冷水10分鐘，香菇泡軟切絲',duration:3,type:'active'},{text:'靜置泡發',duration:10,type:'passive'},{text:'熱油炒豬肉絲至變色，加香菇炒香',duration:3,type:'active'},{text:'加蔬菜翻炒，加醬油和少量香菇水，米粉下鍋大火拌炒至熟，加鹽',duration:5,type:'active',hint:'米粉太乾時加一點香菇泡水，讓米粉均勻吸收醬汁。'}]},
+
+{id:'braised-egg',name:'萬用滷蛋',emoji:'🥚',cuisine:['台式'],category:'main',tools:['湯鍋'],tags:['常備','下飯'],servings:4,totalTime:40,description:'入味Q彈，常備菜必備',
+ingredients:[{name:'雞蛋',amount:'6顆',category:'蛋/豆腐'},{name:'醬油',amount:'4匙',category:'調味料'},{name:'糖',amount:'1匙',category:'調味料'},{name:'米酒',amount:'2匙',category:'調味料'},{name:'八角',amount:'2粒',category:'調味料',optional:true},{name:'蔥',amount:'2根',category:'蔬菜',prep:'切段'},{name:'薑',amount:'3片',category:'蔬菜'}],
+steps:[{text:'雞蛋滾水煮10分鐘，撈起泡冰水，剝殼',duration:12,type:'active',hint:'冰水讓殼更好剝。煮10分鐘是全熟，溏心蛋煮7分鐘。'},{text:'鍋中加水400ml、醬油、糖、米酒、八角、蔥薑煮滾',duration:3,type:'active'},{text:'雞蛋放入小火滷',duration:20,type:'passive'},{text:'關火繼續浸泡入味',duration:10,type:'passive',hint:'可讓蛋在滷汁浸泡一夜，冷藏後更入味。'}]},
+
+{id:'garlic-pork-belly',name:'蒜泥白肉',emoji:'🥩',cuisine:['台式','中式'],category:'main',tools:['湯鍋'],tags:['下酒','涼菜'],servings:2,totalTime:30,description:'涼爽鮮甜，蒜香濃郁',
+ingredients:[{name:'豬五花肉',amount:'300g',category:'肉類'},{name:'蒜頭',amount:'6瓣',category:'蔬菜',prep:'磨蓉'},{name:'醬油膏',amount:'2匙',category:'調味料'},{name:'辣油',amount:'1茶匙',category:'調味料',optional:true},{name:'麻油',amount:'1茶匙',category:'調味料'},{name:'蔥絲',amount:'適量',category:'蔬菜'},{name:'薑',amount:'3片',category:'蔬菜'}],
+steps:[{text:'五花整塊放鍋，加薑片和水，大火煮滾轉小火',duration:3,type:'active'},{text:'小火煮20分鐘至熟透',duration:20,type:'passive',hint:'筷子能輕鬆插入且流出透明汁液就熟了。'},{text:'取出放涼，切薄片',duration:5,type:'active'},{text:'蒜蓉、醬油膏、麻油、辣油調醬，淋在肉上，鋪蔥絲',duration:2,type:'active'}]},
+
+// ══ 更多日式 ══
+{id:'karaage',name:'唐揚炸雞',emoji:'🍗',cuisine:['日式'],category:'main',tools:['湯鍋'],tags:['炸物','下酒'],servings:2,totalTime:30,description:'外酥內嫩，居酒屋必點',
+ingredients:[{name:'雞腿肉',amount:'400g',category:'肉類'},{name:'醬油',amount:'2匙',category:'調味料'},{name:'味醂',amount:'1匙',category:'調味料'},{name:'薑泥',amount:'1茶匙',category:'蔬菜'},{name:'蒜泥',amount:'1茶匙',category:'蔬菜'},{name:'太白粉',amount:'3匙',category:'調味料'},{name:'炸油',amount:'適量',category:'調味料'}],
+steps:[{text:'雞腿切塊，加醬油、味醂、薑泥、蒜泥醃漬',duration:3,type:'active'},{text:'靜置醃漬',duration:15,type:'passive'},{text:'均勻裹上太白粉',duration:2,type:'active'},{text:'油170度，雞肉炸4-5分鐘至熟，撈起',duration:6,type:'active',hint:'第一炸定型熟透，靜置2分鐘後升油溫190度二炸30秒，外皮更脆。'},{text:'升溫190度，二次炸30秒',duration:1,type:'active'}]},
+
+{id:'katsudon',name:'豬排丼',emoji:'🍚',cuisine:['日式'],category:'main',tools:['湯鍋','平底鍋'],tags:['丼飯','豐盛'],servings:1,totalTime:25,description:'酥脆豬排配滑蛋，經典不敗',
+ingredients:[{name:'里肌豬排',amount:'1片',category:'肉類'},{name:'雞蛋',amount:'3顆',category:'蛋/豆腐'},{name:'洋蔥',amount:'1/4顆',category:'蔬菜',prep:'切絲'},{name:'麵粉',amount:'適量',category:'調味料'},{name:'麵包粉',amount:'適量',category:'乾貨'},{name:'高湯',amount:'80ml',category:'調味料'},{name:'醬油',amount:'1.5匙',category:'調味料'},{name:'味醂',amount:'1.5匙',category:'調味料'},{name:'炸油',amount:'適量',category:'調味料'}],
+steps:[{text:'豬排拍薄，依序裹麵粉→蛋液→麵包粉',duration:5,type:'active'},{text:'油170度，豬排炸3-4分鐘至金黃，靜置2分鐘再切塊',duration:6,type:'active',hint:'靜置讓肉汁穩定，切塊才不會流失。'},{text:'小鍋加高湯、醬油、味醂，洋蔥煮軟',duration:4,type:'active'},{text:'豬排放入，蛋液畫圈倒入，半熟關火，滑入飯上',duration:2,type:'active',hint:'蛋半熟關火，餘熱繼續悶，口感最嫩。'}]},
+
+{id:'nikujaga',name:'馬鈴薯燉肉',emoji:'🥔',cuisine:['日式'],category:'main',tools:['湯鍋'],tags:['家常','日式','燉菜'],servings:3,totalTime:40,description:'日式家庭味，甜鹹暖胃',
+ingredients:[{name:'豬肉片',amount:'200g',category:'肉類'},{name:'馬鈴薯',amount:'3顆',category:'蔬菜',prep:'切塊'},{name:'紅蘿蔔',amount:'1根',category:'蔬菜',prep:'切塊'},{name:'洋蔥',amount:'1顆',category:'蔬菜',prep:'切瓣'},{name:'醬油',amount:'3匙',category:'調味料'},{name:'味醂',amount:'3匙',category:'調味料'},{name:'糖',amount:'1匙',category:'調味料'},{name:'高湯',amount:'300ml',category:'調味料'}],
+steps:[{text:'馬鈴薯、紅蘿蔔切塊，洋蔥切瓣',duration:5,type:'active'},{text:'熱油炒肉片至變色，加洋蔥炒軟',duration:4,type:'active'},{text:'加馬鈴薯、紅蘿蔔、高湯、醬油、味醂、糖，大火煮滾',duration:4,type:'active'},{text:'蓋鍋小火燉煮至馬鈴薯軟透',duration:20,type:'passive',hint:'不要常掀蓋攪拌，聚集蒸氣更快煮軟。'},{text:'開蓋大火稍微收汁',duration:5,type:'active'}]},
+
+{id:'gyudon',name:'牛丼',emoji:'🍚',cuisine:['日式'],category:'main',tools:['平底鍋'],tags:['快速','丼飯'],servings:1,totalTime:15,description:'15分鐘，吉野家同款',
+ingredients:[{name:'牛肉薄片',amount:'150g',category:'肉類'},{name:'洋蔥',amount:'半顆',category:'蔬菜',prep:'切薄絲'},{name:'醬油',amount:'2匙',category:'調味料'},{name:'味醂',amount:'2匙',category:'調味料'},{name:'糖',amount:'1茶匙',category:'調味料'},{name:'高湯或水',amount:'100ml',category:'調味料'}],
+steps:[{text:'鍋中加高湯、醬油、味醂、糖煮滾，洋蔥下鍋煮至半透明',duration:5,type:'active'},{text:'牛肉片下鍋撥散，剛好變色即可',duration:3,type:'active',hint:'牛肉薄片10-15秒就熟，過熟會老。'},{text:'連湯汁鋪在飯上',duration:1,type:'active'}]},
+
+// ══ 更多韓式 ══
+{id:'pajeon',name:'韓式海鮮煎餅',emoji:'🥞',cuisine:['韓式'],category:'main',tools:['平底鍋'],tags:['韓式','快速','小點心'],servings:2,totalTime:20,description:'外酥內嫩，沾醬超好吃',
+ingredients:[{name:'中筋麵粉',amount:'100g',category:'調味料'},{name:'雞蛋',amount:'1顆',category:'蛋/豆腐'},{name:'水',amount:'100ml',category:'其他'},{name:'青蔥',amount:'5根',category:'蔬菜',prep:'切段'},{name:'蝦仁',amount:'80g',category:'海鮮',optional:true},{name:'鹽',amount:'少許',category:'調味料'}],
+steps:[{text:'麵粉加蛋、水、鹽調成稍稠麵糊',duration:3,type:'active'},{text:'加蔥段和蝦仁拌入麵糊',duration:2,type:'active'},{text:'平底鍋熱多油，麵糊倒入鋪平，中火煎至底部金黃',duration:5,type:'active',hint:'油要夠多，不要動，讓底部完全定形上色再翻面。'},{text:'翻面繼續煎金黃，切塊',duration:4,type:'active'}]},
+
+{id:'jeyuk-bokkeum',name:'韓式辣炒豬肉',emoji:'🌶️',cuisine:['韓式'],category:'main',tools:['中式炒菜鍋'],tags:['辣','下飯','韓式'],servings:2,totalTime:20,description:'辣甜入味，韓國家常菜',
+ingredients:[{name:'豬五花肉片',amount:'300g',category:'肉類'},{name:'韓式辣醬',amount:'2匙',category:'調味料'},{name:'醬油',amount:'1匙',category:'調味料'},{name:'味醂',amount:'1匙',category:'調味料'},{name:'糖',amount:'1茶匙',category:'調味料'},{name:'麻油',amount:'1茶匙',category:'調味料'},{name:'蒜末',amount:'1匙',category:'蔬菜'},{name:'洋蔥',amount:'半顆',category:'蔬菜',prep:'切絲'}],
+steps:[{text:'豬肉與辣醬、醬油、味醂、糖、蒜末混合醃10分鐘',duration:2,type:'active'},{text:'靜置醃漬',duration:10,type:'passive'},{text:'熱鍋下油，洋蔥炒軟',duration:2,type:'active'},{text:'豬肉大火翻炒至全熟，淋麻油',duration:4,type:'active',hint:'大火快炒讓邊緣略焦，風味更好。'}]},
+
+{id:'bibimbap',name:'韓式拌飯',emoji:'🍚',cuisine:['韓式'],category:'main',tools:['中式炒菜鍋'],tags:['韓式','健康','豐盛'],servings:1,totalTime:20,description:'繽紛蔬菜，一碗搞定',
+ingredients:[{name:'白飯',amount:'1碗',category:'主食'},{name:'菠菜',amount:'1把',category:'蔬菜'},{name:'豆芽菜',amount:'1把',category:'蔬菜'},{name:'紅蘿蔔絲',amount:'半根',category:'蔬菜'},{name:'雞蛋',amount:'1顆',category:'蛋/豆腐'},{name:'韓式辣醬',amount:'1.5匙',category:'調味料'},{name:'麻油',amount:'1匙',category:'調味料'},{name:'鹽',amount:'少許',category:'調味料'}],
+steps:[{text:'菠菜燙熟擠乾，豆芽燙熟，紅蘿蔔絲炒熟，各加鹽和麻油調味',duration:8,type:'active'},{text:'荷包蛋煎至半熟',duration:3,type:'active'},{text:'飯盛碗，蔬菜分區擺，中間放蛋，淋辣醬和麻油，食用前徹底拌勻',duration:2,type:'active',hint:'拌飯精髓是吃前把所有東西徹底拌勻，讓辣醬均勻裹上每一口。'}]},
+
+// ══ 更多中式 ══
+{id:'fish-fragrant-pork',name:'魚香肉絲',emoji:'🌶️',cuisine:['中式'],category:'main',tools:['中式炒菜鍋'],tags:['下飯','家常','中式'],servings:2,totalTime:25,description:'酸甜辣鹹四種味道完美融合',
+ingredients:[{name:'豬里肌肉絲',amount:'200g',category:'肉類'},{name:'木耳',amount:'50g',category:'蔬菜',prep:'泡軟切絲'},{name:'豆瓣醬',amount:'1匙',category:'調味料'},{name:'醬油',amount:'1匙',category:'調味料'},{name:'醋',amount:'1匙',category:'調味料'},{name:'糖',amount:'1茶匙',category:'調味料'},{name:'太白粉',amount:'1茶匙',category:'調味料'},{name:'蒜末',amount:'1匙',category:'蔬菜'},{name:'薑末',amount:'1茶匙',category:'蔬菜'},{name:'蔥花',amount:'少許',category:'蔬菜'}],
+steps:[{text:'肉絲加醬油、太白粉醃10分鐘，木耳泡軟切絲',duration:3,type:'active'},{text:'靜置醃漬',duration:10,type:'passive'},{text:'醋、糖、太白粉水混合成醬汁備用',duration:2,type:'active'},{text:'熱油豆瓣醬炒出紅油，加薑蒜末爆香',duration:2,type:'active'},{text:'肉絲炒散，加木耳，倒入醬汁翻炒，撒蔥花',duration:4,type:'active',hint:'魚香肉絲沒有魚，是醋糖辣醬的組合，四川料理精華。'}]},
+
+{id:'dry-fried-beans',name:'乾煸四季豆',emoji:'🫘',cuisine:['中式'],category:'main',tools:['中式炒菜鍋'],tags:['蔬菜','下飯'],servings:2,totalTime:15,description:'乾香酥脆，簡單好吃',
+ingredients:[{name:'四季豆',amount:'250g',category:'蔬菜'},{name:'豬絞肉',amount:'80g',category:'肉類'},{name:'蒜末',amount:'1匙',category:'蔬菜'},{name:'醬油',amount:'1.5匙',category:'調味料'},{name:'食用油',amount:'3匙',category:'調味料'}],
+steps:[{text:'四季豆洗淨去筋，擦乾水分',duration:3,type:'active'},{text:'多油熱鍋，四季豆下鍋煸炒至外皮起皺微焦',duration:5,type:'active',hint:'要煸到外皮起皺才算到位，需要耐心。'},{text:'加絞肉炒散，加蒜末、醬油翻炒均勻',duration:4,type:'active'}]},
+
+{id:'sweet-sour-pork',name:'糖醋里肌',emoji:'🍖',cuisine:['中式'],category:'main',tools:['中式炒菜鍋','湯鍋'],tags:['酸甜','下飯'],servings:2,totalTime:30,description:'外酥內嫩，酸甜醬汁裹上去',
+ingredients:[{name:'豬里肌肉',amount:'250g',category:'肉類'},{name:'太白粉',amount:'3匙',category:'調味料'},{name:'雞蛋',amount:'1顆',category:'蛋/豆腐'},{name:'番茄醬',amount:'3匙',category:'調味料'},{name:'白醋',amount:'2匙',category:'調味料'},{name:'糖',amount:'2匙',category:'調味料'},{name:'鹽',amount:'少許',category:'調味料'},{name:'炸油',amount:'適量',category:'調味料'}],
+steps:[{text:'里肌切塊，加蛋液、太白粉、鹽抓勻',duration:4,type:'active'},{text:'番茄醬、醋、糖、少量水調成糖醋汁備用',duration:2,type:'active'},{text:'油溫170度炸豬肉至金黃熟透，撈起',duration:5,type:'active',hint:'炸好後再大火復炸30秒，外皮更脆不易被醬汁泡軟。'},{text:'原鍋留少量油，糖醋汁炒至濃稠，加豬肉翻炒裹醬',duration:4,type:'active'}]},
+
+{id:'stir-pea-sprouts',name:'清炒豆苗',emoji:'🌱',cuisine:['中式','台式'],category:'main',tools:['中式炒菜鍋'],tags:['快速','蔬菜','清淡'],servings:2,totalTime:8,description:'清甜鮮嫩，大火快炒',
+ingredients:[{name:'豆苗',amount:'1把',category:'蔬菜'},{name:'蒜末',amount:'1匙',category:'蔬菜'},{name:'鹽',amount:'適量',category:'調味料'},{name:'食用油',amount:'1.5匙',category:'調味料'}],
+steps:[{text:'豆苗洗淨瀝乾',duration:2,type:'active'},{text:'大火熱鍋冒煙，下油爆香蒜末',duration:1,type:'active'},{text:'豆苗下鍋加鹽，大火快炒30秒立刻起鍋',duration:2,type:'active',hint:'豆苗遇熱快軟化，大火30秒足夠，過久出水變爛。'}]},
+
+// ══ 西式補充 ══
+{id:'honey-mustard-chicken',name:'蜂蜜芥末烤雞腿',emoji:'🍗',cuisine:['美式'],category:'main',tools:['烤箱'],tags:['烤箱','簡單'],servings:2,totalTime:45,description:'外皮焦脆，甜辣芥末香',
+ingredients:[{name:'去骨雞腿',amount:'2片',category:'肉類'},{name:'蜂蜜',amount:'2匙',category:'調味料'},{name:'第戎芥末醬',amount:'2匙',category:'調味料'},{name:'醬油',amount:'1匙',category:'調味料'},{name:'蒜粉',amount:'1茶匙',category:'調味料'},{name:'鹽',amount:'適量',category:'調味料'},{name:'黑胡椒',amount:'適量',category:'調味料'}],
+steps:[{text:'蜂蜜、芥末、醬油、蒜粉混合成醃醬，雞腿劃刀',duration:3,type:'active'},{text:'雞腿均勻塗抹醃醬',duration:2,type:'active'},{text:'靜置醃漬',duration:15,type:'passive',hint:'醃越久越入味，時間允許冷藏醃一夜最好。'},{text:'烤箱預熱200度，雞腿皮面朝上烤20-25分鐘至焦糖色',duration:25,type:'passive'}]},
+
+{id:'garlic-butter-shrimp',name:'蒜香奶油蝦',emoji:'🦐',cuisine:['美式','義式'],category:'main',tools:['平底鍋'],tags:['快速','海鮮'],servings:2,totalTime:15,description:'10分鐘義式開胃菜',
+ingredients:[{name:'白蝦',amount:'300g',category:'海鮮'},{name:'奶油',amount:'20g',category:'乳製品'},{name:'蒜頭',amount:'5瓣',category:'蔬菜',prep:'切末'},{name:'白酒',amount:'2匙',category:'調味料',optional:true},{name:'鹽',amount:'適量',category:'調味料'},{name:'黑胡椒',amount:'適量',category:'調味料'}],
+steps:[{text:'蝦去殼去腸泥，擦乾，加鹽黑胡椒',duration:5,type:'active'},{text:'平底鍋大火熱至冒煙，蝦每面煎1分鐘至熟，取出',duration:2,type:'active',hint:'蝦兩面橘紅就熟了，過熟會橡皮化。'},{text:'轉小火放奶油融化，蒜末炒香，加白酒煮30秒',duration:2,type:'active'},{text:'蝦回鍋翻拌均勻',duration:1,type:'active'}]},
+
+{id:'french-toast',name:'法式吐司',emoji:'🍞',cuisine:['法式','美式'],category:'main',tools:['平底鍋'],tags:['早午餐','甜'],servings:2,totalTime:15,description:'外酥內嫩，早午餐首選',
+ingredients:[{name:'吐司',amount:'4片',category:'主食'},{name:'雞蛋',amount:'2顆',category:'蛋/豆腐'},{name:'牛奶',amount:'80ml',category:'乳製品'},{name:'糖',amount:'1匙',category:'調味料'},{name:'奶油',amount:'10g',category:'乳製品'},{name:'楓糖漿',amount:'適量',category:'調味料',optional:true}],
+steps:[{text:'雞蛋、牛奶、糖打散混合成蛋奶液',duration:2,type:'active'},{text:'吐司浸入蛋奶液兩面充分吸收（各30秒）',duration:2,type:'active',hint:'吐司要泡透，側面也要泡到，才是從裡面嫩出來的感覺。'},{text:'平底鍋中火融化奶油，吐司每面煎2-3分鐘至金黃',duration:6,type:'active'}]},
+
+{id:'cream-pasta',name:'奶油白醬義大利麵',emoji:'🍝',cuisine:['義式'],category:'main',tools:['湯鍋','平底鍋'],tags:['麵食','奶香'],servings:2,totalTime:25,description:'濃郁不膩，比餐廳簡單',
+ingredients:[{name:'義大利麵',amount:'200g',category:'主食'},{name:'培根',amount:'80g',category:'肉類',prep:'切小片'},{name:'動物性鮮奶油',amount:'200ml',category:'乳製品'},{name:'蒜末',amount:'3瓣份',category:'蔬菜'},{name:'帕馬森起司',amount:'30g',category:'乳製品'},{name:'鹽',amount:'適量',category:'調味料'},{name:'黑胡椒',amount:'適量',category:'調味料'}],
+steps:[{text:'鹽水大鍋加熱',duration:5,type:'passive'},{text:'麵按包裝煮，保留一杯麵水',duration:10,type:'passive'},{text:'培根炒至焦脆，加蒜末炒香',duration:4,type:'active'},{text:'加鮮奶油小火稍微濃縮',duration:3,type:'active',hint:'保持小火，大火容易讓鮮奶油分離。'},{text:'麵撈入鍋，加起司和少量麵水，大火拌勻，加鹽黑胡椒',duration:2,type:'active'}]},
+
+// ══ 小點心 / 配菜 ══
+{id:'cucumber-salad',name:'涼拌小黃瓜',emoji:'🥒',cuisine:['台式','中式'],category:'main',tools:[],tags:['涼菜','快速','下酒'],servings:2,totalTime:10,description:'清爽解膩，越吃越順口',
+ingredients:[{name:'小黃瓜',amount:'3條',category:'蔬菜'},{name:'蒜末',amount:'3瓣份',category:'蔬菜'},{name:'鹽',amount:'1茶匙',category:'調味料'},{name:'醬油',amount:'1匙',category:'調味料'},{name:'醋',amount:'1匙',category:'調味料'},{name:'麻油',amount:'1茶匙',category:'調味料'},{name:'辣油',amount:'少許',category:'調味料',optional:true}],
+steps:[{text:'小黃瓜拍碎，加鹽抓醃5分鐘，擠乾多餘水分',duration:6,type:'active',hint:'拍碎比切片更能讓醬汁滲入，更入味。'},{text:'加蒜末、醬油、醋、麻油、辣油拌勻，冷藏10分鐘更入味',duration:2,type:'active'}]},
+
+{id:'century-egg-tofu',name:'皮蛋豆腐',emoji:'🥚',cuisine:['台式'],category:'main',tools:[],tags:['涼菜','快速','下酒'],servings:2,totalTime:5,description:'五分鐘上菜，開胃下飯',
+ingredients:[{name:'嫩豆腐',amount:'1盒',category:'蛋/豆腐'},{name:'皮蛋',amount:'2顆',category:'蛋/豆腐'},{name:'醬油膏',amount:'1.5匙',category:'調味料'},{name:'蔥花',amount:'適量',category:'蔬菜'},{name:'柴魚片',amount:'適量',category:'乾貨',optional:true},{name:'麻油',amount:'少許',category:'調味料'}],
+steps:[{text:'豆腐輕輕倒扣盤中，皮蛋切丁鋪上',duration:3,type:'active'},{text:'淋醬油膏、麻油，撒蔥花柴魚片',duration:1,type:'active'}]},
+
+{id:'scallion-pancake',name:'蔥油餅',emoji:'🫓',cuisine:['台式'],category:'main',tools:['平底鍋'],tags:['點心','早餐'],servings:2,totalTime:25,description:'層次分明，蔥香撲鼻',
+ingredients:[{name:'中筋麵粉',amount:'200g',category:'調味料'},{name:'滾水',amount:'120ml',category:'其他'},{name:'蔥花',amount:'3根份',category:'蔬菜'},{name:'鹽',amount:'適量',category:'調味料'},{name:'食用油',amount:'適量',category:'調味料'}],
+steps:[{text:'麵粉加滾水攪拌成麵團，揉至光滑',duration:5,type:'active',hint:'滾水燙麵讓麵團更軟糯有層次。'},{text:'靜置15分鐘',duration:15,type:'passive'},{text:'擀成薄片，塗油撒鹽和蔥花，捲起盤成圓形，擀平',duration:3,type:'active'},{text:'平底鍋中火熱油，兩面各煎2-3分鐘至金黃',duration:5,type:'active'}]},
+
+{id:'air-fryer-sweet-potato',name:'氣炸地瓜',emoji:'🍠',cuisine:['台式'],category:'main',tools:['氣炸鍋'],tags:['點心','健康','氣炸'],servings:2,totalTime:30,description:'外脆內綿，自然甜味',
+ingredients:[{name:'地瓜',amount:'2條',category:'蔬菜'}],
+steps:[{text:'地瓜洗淨不去皮，切厚片',duration:2,type:'active'},{text:'氣炸鍋200度預熱，地瓜放入',duration:2,type:'active'},{text:'氣炸20-25分鐘，中途翻面一次',duration:22,type:'passive',hint:'竹籤能輕鬆穿透就熟了。切片約15-18分鐘，整條約25分鐘。'}]},
+
+{id:'edamame',name:'鹽水毛豆',emoji:'🫛',cuisine:['台式','日式'],category:'main',tools:['湯鍋'],tags:['點心','下酒','快速'],servings:2,totalTime:12,description:'越嚼越香，無限小點心',
+ingredients:[{name:'毛豆（帶殼）',amount:'300g',category:'蔬菜'},{name:'鹽',amount:'2匙',category:'調味料'}],
+steps:[{text:'毛豆剪去兩端，用鹽搓揉洗淨',duration:3,type:'active',hint:'剪開兩端讓鹽水滲入豆莢，更入味。'},{text:'加鹽滾水，毛豆下鍋煮8分鐘',duration:8,type:'passive'},{text:'撈起冷水沖涼，撒少許鹽',duration:1,type:'active'}]},
+
+// ══ 更多湯品 ══
+{id:'pork-rib-soup',name:'清燉排骨湯',emoji:'🍖',cuisine:['台式'],category:'soup',tools:['湯鍋'],tags:['湯','燉湯','家常'],servings:3,totalTime:50,description:'清甜純粹，最家常的湯',
+ingredients:[{name:'豬小排',amount:'400g',category:'肉類'},{name:'白蘿蔔',amount:'半條',category:'蔬菜',prep:'切塊'},{name:'薑',amount:'5片',category:'蔬菜'},{name:'鹽',amount:'適量',category:'調味料'},{name:'米酒',amount:'1匙',category:'調味料'}],
+steps:[{text:'排骨汆燙去腥，白蘿蔔切塊',duration:5,type:'active'},{text:'排骨加薑片、足量水、米酒，大火煮滾轉小火',duration:5,type:'active'},{text:'小火燉煮30分鐘',duration:30,type:'passive'},{text:'加白蘿蔔繼續燉10分鐘，加鹽',duration:10,type:'passive',hint:'白蘿蔔太早加容易爛，排骨燉軟後加口感最好。'}]},
+
+{id:'hot-sour-soup',name:'酸辣湯',emoji:'🍲',cuisine:['中式'],category:'soup',tools:['湯鍋'],tags:['湯','酸辣'],servings:2,totalTime:20,description:'酸辣開胃，暖胃解饞',
+ingredients:[{name:'嫩豆腐',amount:'半盒',category:'蛋/豆腐'},{name:'木耳',amount:'30g',category:'蔬菜',prep:'泡軟切絲'},{name:'雞蛋',amount:'2顆',category:'蛋/豆腐'},{name:'高湯或水',amount:'500ml',category:'調味料'},{name:'醬油',amount:'1.5匙',category:'調味料'},{name:'醋',amount:'2匙',category:'調味料'},{name:'太白粉',amount:'2匙',category:'調味料'},{name:'白胡椒粉',amount:'1茶匙',category:'調味料'},{name:'蔥花',amount:'少許',category:'蔬菜'}],
+steps:[{text:'木耳泡軟切絲，豆腐切絲，蛋打散',duration:4,type:'active'},{text:'高湯煮滾，加豆腐、木耳、醬油、白胡椒粉',duration:3,type:'active'},{text:'太白粉水勾芡至濃稠',duration:2,type:'active'},{text:'緩緩淋入蛋液成蛋花，最後加醋，撒蔥花',duration:2,type:'active',hint:'醋要最後加，早加酸味會揮發。'}]},
+
+// ══ 飲料 (drinks) ══
+{id:'matcha-milk',name:'抹茶牛奶',emoji:'🍵',cuisine:['日式'],category:'drink',tools:[],tags:['飲料','快速','抹茶'],servings:1,totalTime:5,description:'2分鐘，咖啡廳等級',
+ingredients:[{name:'抹茶粉',amount:'1.5茶匙',category:'調味料'},{name:'熱水（約60度）',amount:'30ml',category:'其他'},{name:'牛奶',amount:'200ml',category:'乳製品'},{name:'蜂蜜或糖',amount:'1茶匙',category:'調味料',optional:true}],
+steps:[{text:'抹茶粉加少量60度熱水，快速攪拌至無結塊',duration:2,type:'active',hint:'水溫不超過80度，高溫破壞抹茶香氣和顏色。'},{text:'加入冷牛奶（熱喝先溫熱牛奶），加蜂蜜調甜度',duration:1,type:'active'}]},
+
+{id:'fresh-juice',name:'現打鮮果汁',emoji:'🍊',cuisine:['美式'],category:'drink',tools:['調理機'],tags:['飲料','健康','果汁'],servings:1,totalTime:5,description:'一鍵搞定，新鮮不添加',
+ingredients:[{name:'柳橙（或其他水果）',amount:'3顆',category:'蔬菜'},{name:'冰塊',amount:'適量',category:'其他',optional:true},{name:'蜂蜜',amount:'少許',category:'調味料',optional:true}],
+steps:[{text:'水果洗淨去皮切塊',duration:2,type:'active'},{text:'放入調理機，加少許水或冰塊，攪打30秒至細滑',duration:1,type:'active',hint:'柳橙用手動榨汁機更快；芭樂、蘋果等較硬水果適合調理機。'},{text:'試甜度，可加蜂蜜；過篩或直接喝',duration:1,type:'active'}]},
+
+{id:'green-smoothie',name:'綠拿鐵',emoji:'🥤',cuisine:['美式'],category:'drink',tools:['調理機'],tags:['飲料','健康','早餐'],servings:1,totalTime:5,description:'菠菜香蕉，顏色嚇人但很好喝',
+ingredients:[{name:'菠菜或嫩葉',amount:'1把',category:'蔬菜'},{name:'香蕉',amount:'1根',category:'蔬菜'},{name:'蘋果',amount:'半顆',category:'蔬菜'},{name:'牛奶或植物奶',amount:'150ml',category:'乳製品'},{name:'蜂蜜',amount:'少許',category:'調味料',optional:true}],
+steps:[{text:'所有食材洗淨，香蕉、蘋果切塊',duration:2,type:'active'},{text:'全部放入調理機，攪打1分鐘至完全細滑',duration:1,type:'active',hint:'先加液體再加蔬果更容易打。香蕉讓口感滑順也掩蓋菠菜草味。'}]},
+
+{id:'milk-tea',name:'自製鮮奶茶',emoji:'🧋',cuisine:['台式'],category:'drink',tools:['湯鍋'],tags:['飲料','奶茶'],servings:2,totalTime:10,description:'自製港式奶茶，不輸外面',
+ingredients:[{name:'紅茶包',amount:'3包',category:'乾貨'},{name:'牛奶',amount:'200ml',category:'乳製品'},{name:'水',amount:'300ml',category:'其他'},{name:'糖',amount:'1.5匙',category:'調味料'},{name:'冰塊',amount:'適量',category:'其他',optional:true}],
+steps:[{text:'水煮滾，茶包放入燜泡5分鐘至茶湯深色',duration:6,type:'passive',hint:'想茶味濃可用力擠壓茶包，但注意澀味。'},{text:'取出茶包，加糖攪拌融化',duration:1,type:'active'},{text:'加入牛奶，熱喝或加冰塊變冰奶茶',duration:1,type:'active'}]},
+
+{id:'honey-lemon',name:'蜂蜜檸檬水',emoji:'🍋',cuisine:['美式'],category:'drink',tools:[],tags:['飲料','健康','快速'],servings:1,totalTime:3,description:'清爽解渴，最簡單的飲料',
+ingredients:[{name:'檸檬',amount:'半顆',category:'蔬菜'},{name:'蜂蜜',amount:'1.5匙',category:'調味料'},{name:'水',amount:'300ml',category:'其他'},{name:'冰塊',amount:'適量',category:'其他',optional:true}],
+steps:[{text:'檸檬榨汁，加蜂蜜、水攪拌均勻，可加冰塊',duration:3,type:'active',hint:'用溫水（非熱水），蜂蜜才不失去營養。'}]},
+
+{id:'oat-latte',name:'燕麥奶拿鐵',emoji:'☕',cuisine:['美式'],category:'drink',tools:[],tags:['飲料','咖啡'],servings:1,totalTime:5,description:'植物奶拿鐵，咖啡廳在家喝',
+ingredients:[{name:'義式濃縮或即溶咖啡',amount:'1份（30ml）',category:'調味料'},{name:'燕麥奶',amount:'200ml',category:'乳製品'},{name:'糖',amount:'適量',category:'調味料',optional:true},{name:'冰塊',amount:'適量',category:'其他',optional:true}],
+steps:[{text:'準備義式濃縮或沖濃即溶咖啡',duration:2,type:'active'},{text:'燕麥奶倒入，喜歡奶泡用奶泡棒加熱打發',duration:1,type:'active',hint:'燕麥奶是打奶泡效果最好的植物奶，60度加熱後用奶泡棒30秒就有細緻奶泡。'},{text:'咖啡倒入杯（冰的先加冰塊），倒入燕麥奶',duration:1,type:'active'}]},
+
+// ══ 更多甜品 ══
+{id:'red-bean-soup',name:'紅豆湯',emoji:'🫘',cuisine:['台式'],category:'dessert',tools:['電鍋','湯鍋'],tags:['甜品','電鍋'],servings:4,totalTime:80,description:'綿密入口即化，冬天暖心',
+ingredients:[{name:'紅豆',amount:'200g',category:'乾貨'},{name:'糖',amount:'3匙',category:'調味料'},{name:'水',amount:'1000ml',category:'其他'}],
+steps:[{text:'紅豆洗淨，提前泡水2小時（或冷凍再解凍）',duration:5,type:'active',hint:'冷凍再解凍讓豆皮自然裂開，比長時間泡水更快熟。'},{text:'紅豆加足量水放電鍋（外鍋2杯水）',duration:40,type:'passive'},{text:'跳起後加糖，再外鍋加半杯水煮一次更綿密',duration:25,type:'passive'},{text:'試甜度，燜10分鐘',duration:10,type:'passive'}]},
+
+{id:'tang-yuan',name:'芝麻湯圓',emoji:'🍡',cuisine:['台式'],category:'dessert',tools:['湯鍋'],tags:['甜品','節慶'],servings:3,totalTime:20,description:'外皮Q彈，黑芝麻餡濃郁',
+ingredients:[{name:'冷凍芝麻湯圓',amount:'12顆',category:'主食'},{name:'薑片',amount:'3片',category:'蔬菜'},{name:'糖',amount:'1匙',category:'調味料'}],
+steps:[{text:'水煮滾，加薑片和糖',duration:3,type:'active'},{text:'冷凍湯圓不解凍直接下鍋',duration:1,type:'active',hint:'湯圓不要解凍直接下鍋，解凍反而容易破皮。'},{text:'湯圓浮起後再煮2分鐘即可',duration:8,type:'passive'}]},
+
+]; // end BUILTIN
+// ── STATE ──
+let S={favorites:[],frequent:[],myTools:['電鍋','平底鍋','中式炒菜鍋','湯鍋'],customRecipes:[],servings:2,
+  theme:'溫暖廚房',timeAvailable:45,numDishes:2,wantSoup:0,wantDessert:0,selectedCuisines:[],preferFavs:false,
+  currentMenu:[],shoppingChecked:{},cookingTimeline:[],cookingStep:0,shoppingServings:2,wantDrink:0,planSelected:[]};
+
+function save(){localStorage.setItem('bhlc2',JSON.stringify({favorites:S.favorites,frequent:S.frequent,myTools:S.myTools,customRecipes:S.customRecipes,servings:S.servings,theme:S.theme}));}
+function load(){try{const d=JSON.parse(localStorage.getItem('bhlc2')||'{}');Object.assign(S,{favorites:d.favorites||[],frequent:d.frequent||[],myTools:d.myTools||['電鍋','平底鍋','中式炒菜鍋','湯鍋'],customRecipes:d.customRecipes||[],servings:d.servings||2,theme:d.theme||'溫暖廚房'});}catch(e){}applyTheme(S.theme);updateFavSection();}
+function allRecipes(){return[...BUILTIN,...S.customRecipes];}
+// ── SCALE AMOUNT ──
+function scaleAmount(str, ratio) {
+  if (!ratio || ratio === 1) return str;
+  const m = str.match(/^(約?\s*)([\d.]+)(.*)/);
+  if (!m) return str;
+  const num = parseFloat(m[2]);
+  if (isNaN(num)) return str;
+  const scaled = num * ratio;
+  const fmt = (scaled % 1 === 0) ? scaled.toString() : (Math.round(scaled * 10) / 10).toString();
+  return m[1] + fmt + m[3];
+}
+
+
+
+// ── RECOMMENDATION ──
+function recommendMenu(){
+  const{timeAvailable,numDishes,wantSoup,wantDessert,wantDrink,selectedCuisines,preferFavs,myTools}=S;
+  const hasTools=r=>!r.tools||r.tools.length===0||r.tools.every(t=>myTools.includes(t));
+  const matchCuisine=r=>selectedCuisines.length===0||r.cuisine.some(c=>selectedCuisines.includes(c));
+
+  // 先把食譜庫已選（planSelected）的菜放進去
+  const preSelected=S.planSelected.map(id=>allRecipes().find(r=>r.id===id)).filter(Boolean);
+  const sel=[...preSelected];
+  const usedMeat=new Set();
+  preSelected.forEach(r=>{const m=r.ingredients?.find(i=>i.category==='肉類')?.name;if(m)usedMeat.add(m);});
+  const hasPreSoup=preSelected.some(r=>r.category==='soup');
+  const hasPreDessert=preSelected.some(r=>r.category==='dessert');
+  const hasPreDrink=preSelected.some(r=>r.category==='drink');
+  const preMainCount=preSelected.filter(r=>r.category==='main').length;
+
+  // 推薦候選（排除已選的）
+  let mains=allRecipes().filter(r=>r.category==='main'&&hasTools(r)&&matchCuisine(r)&&!r.tags?.includes('基礎')&&!sel.find(s=>s.id===r.id));
+  let soups=allRecipes().filter(r=>r.category==='soup'&&hasTools(r)&&!sel.find(s=>s.id===r.id));
+  let desserts=allRecipes().filter(r=>r.category==='dessert'&&hasTools(r)&&!sel.find(s=>s.id===r.id));
+  if(preferFavs&&S.frequent.length)mains.sort((a,b)=>(S.frequent.includes(b.id)?1:0)-(S.frequent.includes(a.id)?1:0));
+  else mains.sort(()=>Math.random()-.5);
+  soups.sort(()=>Math.random()-.5);desserts.sort(()=>Math.random()-.5);
+
+  // 填滿主菜名額（已選的不計在限制內，讓推薦的補到 numDishes）
+  const targetMains=Math.max(numDishes-preMainCount,0);
+  for(const r of mains){
+    if(sel.filter(x=>x.category==='main').length>=numDishes)break;
+    const m=r.ingredients?.find(i=>i.category==='肉類')?.name;
+    if(m&&usedMeat.has(m))continue;
+    if(m)usedMeat.add(m);
+    sel.push(r);
+  }
+  for(const r of mains){
+    if(sel.filter(x=>x.category==='main').length>=numDishes)break;
+    if(!sel.find(s=>s.id===r.id))sel.push(r);
+  }
+
+  // 湯／甜品／飲料：planSelected 已有就不重複推薦
+  if(wantSoup&&!hasPreSoup&&soups.length)sel.push(soups[0]);
+  if(wantDessert&&!hasPreDessert&&desserts.length)sel.push(desserts[0]);
+  const drinks=allRecipes().filter(r=>r.category==='drink'&&!sel.find(s=>s.id===r.id)).sort(()=>Math.random()-.5);
+  if(wantDrink&&!hasPreDrink&&drinks.length)sel.push(drinks[0]);
+
+  S.planSelected=[];   // 清空，避免下次重複
+  S.currentMenu=sel;
+}
+
+// ── TIMELINE ──
+function generateTimeline(recipes){
+  const si=recipes.map(()=>0),ra=recipes.map(()=>0);let hf=0;const tl=[];
+  const done=()=>recipes.every((r,i)=>si[i]>=r.steps.length);
+  for(let it=0;it<200&&!done();it++){
+    const cands=recipes.map((r,i)=>{if(si[i]>=r.steps.length)return null;const s=r.steps[si[i]];const cs=s.type==='passive'?ra[i]:Math.max(ra[i],hf);return{i,r,s,cs};}).filter(Boolean);
+    if(!cands.length)break;
+    cands.sort((a,b)=>a.cs!==b.cs?a.cs-b.cs:a.s.type==='passive'?-1:1);
+    const{i,r,s,cs}=cands[0];const ea=cs+s.duration;
+    tl.push({startAt:cs,endAt:ea,recipeIdx:i,recipeName:r.name,step:s});
+    si[i]++;ra[i]=ea;if(s.type==='active')hf=ea;
+  }
+  return tl.sort((a,b)=>a.startAt-b.startAt);
+}
+
+// ── SHOPPING LIST ──
+function buildShoppingList(recipes){
+  const map={};
+  const target=S.shoppingServings||S.servings||2;
+  for(const r of recipes){
+    const ratio=target/(r.servings||2);
+    for(const ing of r.ingredients){const k=ing.name;if(!map[k])map[k]={name:ing.name,category:ing.category,optional:ing.optional||false,uses:[]};map[k].uses.push({dish:r.name,amount:scaleAmount(ing.amount,ratio),prep:ing.prep||null});}}
+  const byCat={};
+  for(const item of Object.values(map)){const c=item.category||'其他';if(!byCat[c])byCat[c]=[];byCat[c].push(item);}
+  return byCat;
+}
+
+// ── NAVIGATION ──
+let curScreen='home';
+let planningScreen='home';
+const CTA_HTML={
+  home:`<button class="btn-primary" onclick="startPlanning()">開始規劃 →</button>`,
+  menu:`<button class="btn-primary" onclick="confirmMenu()">確認菜單，去採購 →</button>`,
+  shopping:`<button class="btn-outline" style="width:100%;margin-bottom:8px" onclick="checkAllShopping()">一鍵全部完成 ✓</button><button class="btn-primary" id="btn-cook" onclick="startCooking()" disabled>備料完成，開始煮！🔥</button>`,
+  add:`<button class="btn-outline" style="flex:1" onclick="navigate('library')">取消</button><button class="btn-primary" style="flex:2" onclick="saveRecipe()">儲存食譜 ✓</button>`,
+};
+function setCTA(s){
+  const bar=document.getElementById('cta-bar');
+  if(!bar)return;
+  const html=CTA_HTML[s];
+  if(html){bar.innerHTML=html;bar.className=s==='add'?'two-btn visible':'visible';}
+  else{bar.className='';bar.innerHTML='';}
+}
+function navHome(){navigate(planningScreen||'home');}
+function navigate(s){
+  document.querySelectorAll('.screen').forEach(el=>el.classList.remove('active'));
+  const el=document.getElementById('screen-'+s);if(el)el.classList.add('active');curScreen=s;
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  if(['home','menu','shopping','cooking'].includes(s)){planningScreen=s;document.getElementById('nav-home').classList.add('active');updatePlanBar();}
+  else if(s==='library'){document.getElementById('nav-library').classList.add('active');renderLibrary();updatePlanBar();}
+  else if(s==='settings'){document.getElementById('nav-settings').classList.add('active');renderSettings();}
+  if(s==='cooking')setupCookingScroll();
+  setCTA(s);
+}
+
+
+// ── RANDOM PLAN ──
+function randomPlan(){
+  const times=[30,45,60,120];
+  const picks=[2,3,4];
+  S.timeAvailable=times[Math.floor(Math.random()*times.length)];
+  S.numDishes=picks[Math.floor(Math.random()*picks.length)];
+  S.wantSoup=Math.random()>.6?1:0;
+  S.wantDessert=Math.random()>.8?1:0;
+  S.wantDrink=0;
+  S.selectedCuisines=[];
+  // sync UI
+  ['seg-dishes','seg-time','seg-soup','seg-dessert','seg-drink'].forEach(id=>{
+    document.querySelectorAll('#'+id+' .seg').forEach(b=>{
+      const match=(id==='seg-dishes'&&b.dataset.val!=='custom'&&+b.dataset.val===S.numDishes)||(id==='seg-time'&&+b.dataset.val===S.timeAvailable)||(id==='seg-soup'&&+b.dataset.val===S.wantSoup)||(id==='seg-dessert'&&+b.dataset.val===S.wantDessert);
+      b.classList.toggle('selected',match);
+    });
+  });
+  document.querySelectorAll('#chip-cuisines .chip').forEach(b=>b.classList.remove('selected'));
+  startPlanning();
+}
+function initGreeting(){
+  const h=new Date().getHours();
+  const greet=h<11?'早安！今天要煮什麼？':h<14?'午安！今天吃什麼好呢？':h<18?'下午了，晚餐要煮什麼？':'晚上好！今晚的菜色來規劃一下';
+  const el=document.getElementById('hero-greeting');
+  if(el)el.textContent=greet;
+}
+
+// ── HOME ──
+function initHome(){
+  // 主菜道數（含自行輸入）
+  document.querySelectorAll('#seg-dishes .seg').forEach(b=>{
+    b.onclick=()=>{
+      document.querySelectorAll('#seg-dishes .seg').forEach(s=>s.classList.remove('selected'));
+      b.classList.add('selected');
+      const wrap=document.getElementById('custom-dishes-wrap');
+      if(b.dataset.val==='custom'){
+        wrap.style.display='flex';
+        const inp=document.getElementById('custom-dishes-input');
+        S.numDishes=Math.max(1,parseInt(inp.value)||6);
+        inp.oninput=()=>{S.numDishes=Math.max(1,parseInt(inp.value)||1);};
+      } else {
+        wrap.style.display='none';
+        S.numDishes=+b.dataset.val;
+      }
+    };
+  });
+  // 其他 seg groups
+  ['seg-time','seg-soup','seg-dessert','seg-drink'].forEach(id=>{
+    document.querySelectorAll(`#${id} .seg`).forEach(b=>{
+      b.onclick=()=>{document.querySelectorAll(`#${id} .seg`).forEach(s=>s.classList.remove('selected'));b.classList.add('selected');
+        if(id==='seg-time')S.timeAvailable=+b.dataset.val;
+        else if(id==='seg-soup')S.wantSoup=+b.dataset.val;
+        else if(id==='seg-dessert')S.wantDessert=+b.dataset.val;
+        else if(id==='seg-drink')S.wantDrink=+b.dataset.val;};
+    });
+  });
+  document.querySelectorAll('#chip-cuisines .chip').forEach(b=>{
+    b.onclick=()=>{b.classList.toggle('selected');const v=b.dataset.val;
+      b.classList.contains('selected')?(!S.selectedCuisines.includes(v)&&S.selectedCuisines.push(v)):S.selectedCuisines.splice(S.selectedCuisines.indexOf(v),1);};
+  });
+  document.getElementById('chk-favs').onchange=e=>S.preferFavs=e.target.checked;
+}
+function updateFavSection(){document.getElementById('fav-section').style.display=S.frequent.length?'':'none';}
+function startPlanning(){recommendMenu();renderMenuScreen();navigate('menu');updatePlanBar();}
+
+// ── MENU ──
+const TOOL_COLOR={'電鍋':'#854D0E','平底鍋':'#1E3A5F','中式炒菜鍋':'#14532D','湯鍋':'#1E3A5F','氣炸鍋':'#7C2D12','壓力鍋':'#7F1D1D','烤箱':'#4C1D95'};
+const TOOL_BG={'電鍋':'#FEF9C3','平底鍋':'#DBEAFE','中式炒菜鍋':'#DCFCE7','湯鍋':'#DBEAFE','氣炸鍋':'#FFEDD5','壓力鍋':'#FEE2E2','烤箱':'#EDE9FE'};
+function renderMenuScreen(){
+  document.getElementById('menu-cards').innerHTML=S.currentMenu.map((r,i)=>`
+    <div class="recipe-card">
+      <button class="rc-swap-btn" onclick="openSwap(${i})">換</button>
+      <div class="rc-header">
+        <div class="rc-emoji">${r.emoji||'🍳'}</div>
+        <div><div class="rc-name">${r.name}</div><div class="rc-desc">${r.description||''}</div></div>
+      </div>
+      <div class="rc-meta">
+        <span class="badge badge-cuisine">${r.cuisine[0]}</span>
+        <span class="badge badge-time">⏱ ${r.totalTime}分</span>
+        ${(r.tools||[]).map(t=>`<span class="badge badge-tool" style="background:${TOOL_BG[t]||'#F0FDF4'};color:${TOOL_COLOR[t]||'#166834'}">${t}</span>`).join('')}
+      </div>
+    </div>`).join('');
+}
+let swapIdx=-1;
+function openSwap(i){
+  swapIdx=i;const cur=S.currentMenu[i];
+  const alts=allRecipes().filter(r=>r.id!==cur.id&&!S.currentMenu.find(m=>m.id===r.id)&&r.category===cur.category).sort(()=>Math.random()-.5).slice(0,8);
+  document.getElementById('swap-opts').innerHTML=alts.map(r=>`<div class="swap-opt" onclick="doSwap('${r.id}')"><span style="font-size:24px">${r.emoji||'🍳'}</span><div><div style="font-size:15px;font-weight:600">${r.name}</div><div style="font-size:12px;color:var(--muted)">${r.cuisine[0]} · ${r.totalTime}分</div></div></div>`).join('');
+  document.getElementById('modal-swap').classList.add('open');
+}
+function doSwap(id){const r=allRecipes().find(r=>r.id===id);if(r&&swapIdx>=0){S.currentMenu[swapIdx]=r;renderMenuScreen();}closeModal('modal-swap');}
+function closeModal(id,e){if(!e||e.target.id===id)document.getElementById(id).classList.remove('open');}
+function confirmMenu(){S.shoppingChecked={};S.shoppingServings=S.servings||2;renderShopping();navigate('shopping');}
+
+// ── SHOPPING ──
+function renderShopping(){
+  const sv=document.getElementById('shop-servings-val');if(sv)sv.textContent=S.shoppingServings||S.servings||2;
+  const data=buildShoppingList(S.currentMenu);const container=document.getElementById('shopping-list');
+  let html='';
+  for(const cat of CAT_ORDER.filter(c=>data[c])){
+    html+=`<div class="shop-group"><div class="shop-group-title">${CAT_EMOJI[cat]||'📦'} ${cat}</div><div class="card" style="padding:4px 12px">`;
+    for(const item of data[cat]){
+      const k=item.name;const chk=S.shoppingChecked[k]||false;
+      html+=`<div class="shop-item${chk?' checked':''}" onclick="toggleShop('${k}',this)">
+        <div class="shop-check">${chk?'✓':''}</div>
+        <div class="item-body">
+          <div class="item-name">${item.name}${item.optional?'<span class="item-optional">（非必要）</span>':''}</div>
+          ${item.uses.length>1
+            ?`<div class="item-uses">${item.uses.map(u=>`<div class="item-use-row">${u.prep?u.prep+' ':''}<span class="item-amount">${u.amount}</span><span style="color:var(--muted);font-size:12px"> → ${u.dish}</span></div>`).join('')}</div>`
+            :`<div class="item-amount">${item.uses[0].prep?item.uses[0].prep+' ':''} ${item.uses[0].amount}</div>`}
+        </div>
+      </div>`;
+    }
+    html+='</div></div>';
+  }
+  container.innerHTML=html;updateShopProgress();
+}
+function toggleShop(k,el){
+  S.shoppingChecked[k]=!S.shoppingChecked[k];
+  el.classList.toggle('checked',S.shoppingChecked[k]);
+  el.querySelector('.shop-check').textContent=S.shoppingChecked[k]?'✓':'';
+  updateShopProgress();
+}
+function checkAllShopping(){
+  const data=buildShoppingList(S.currentMenu);
+  Object.values(data).flat().forEach(item=>{S.shoppingChecked[item.name]=true;});
+  renderShopping();
+}
+function changeShopServings(delta){
+  S.shoppingServings=Math.max(1,Math.min(8,(S.shoppingServings||2)+delta));
+  const el=document.getElementById('shop-servings-val');if(el)el.textContent=S.shoppingServings;
+  S.shoppingChecked={};renderShopping();
+}
+function updateShopProgress(){
+  const data=buildShoppingList(S.currentMenu);const items=Object.values(data).flat();
+  const total=items.length,done=items.filter(i=>S.shoppingChecked[i.name]).length;
+  document.getElementById('shop-count').textContent=`${done} / ${total}`;
+  document.getElementById('shop-prog').style.width=total?`${done/total*100}%`:'0%';
+  const btn=document.getElementById('btn-cook');
+  if(btn){btn.disabled=done<total;btn.textContent=done>=total?'備料完成，開始煮！🔥':`還差 ${total-done} 項，繼續打勾`;}
+}
+function startCooking(){S.cookingTimeline=generateTimeline(S.currentMenu);S.cookingStep=0;renderCooking();navigate('cooking');}
+// ── COOKING ──
+const TOOL_EMOJI={'電鍋':'🍚','平底鍋':'🍳','中式炒菜鍋':'🥘','湯鍋':'🫕','氣炸鍋':'💨','壓力鍋':'⚗️','烤箱':'🔥'};
+function inferTool(step,recipe){
+  const t=step.text;
+  const tools=recipe.tools||[];
+  if(/電鍋|外鍋|內鍋/.test(t))return'電鍋';
+  if(/氣炸/.test(t))return'氣炸鍋';
+  if(/烤箱/.test(t))return'烤箱';
+  if(/平底鍋/.test(t))return'平底鍋';
+  if(/湯鍋|小鍋/.test(t))return'湯鍋';
+  if(/煮滾|燉鍋|湯底|加水煮/.test(t)&&tools.includes('湯鍋'))return'湯鍋';
+  if(/熱鍋|翻炒|爆香|大火|下鍋|炒香|炒散|起鍋|入鍋|下乾鍋|煸/.test(t)&&step.type==='active'){
+    if(tools.includes('中式炒菜鍋'))return'中式炒菜鍋';
+    if(tools.includes('平底鍋'))return'平底鍋';
+  }
+  if(step.type==='passive'&&/電鍋/.test(tools.join()))return'電鍋';
+  return null;
+}
+function renderCooking(){
+  const tl=S.cookingTimeline,total=tl.length;
+  const totalMins=total?tl[total-1].endAt:0;
+  let html=`<div class="dish-legend">`;
+  S.currentMenu.forEach((r,i)=>html+=`<div class="leg-item"><div class="leg-dot" style="background:${DISH_COLORS[i%4]}"></div>${r.name}</div>`);
+  html+=`</div><div class="tl-wrap" id="tl-wrap">`;
+  tl.forEach((item,idx)=>{
+    const col=DISH_COLORS[item.recipeIdx%4];
+    const mm=Math.floor(item.startAt/60).toString().padStart(2,'0');
+    const ss=(item.startAt%60).toString().padStart(2,'0');
+    const cls=idx===0?'tl-current':'tl-upcoming';
+    const toolName=inferTool(item.step,S.currentMenu[item.recipeIdx]);
+    const toolHtml=toolName?`<span class="step-tool">${TOOL_EMOJI[toolName]||'🍴'} ${toolName}</span>`:'';
+    html+=`<div class="tl-item ${cls}" id="tl-${idx}">
+      <div class="tl-left"><div class="tl-time">${mm}:${ss}</div><div class="tl-dot-wrap" style="background:${col}"></div>${idx<total-1?'<div class="tl-line"></div>':''}</div>
+      <div style="flex:1"><div class="tl-card">
+        <div class="tl-tag" style="background:${col}20;color:${col}">${item.recipeName}</div>
+        <div class="tl-text">${item.step.text}</div>
+        <div class="tl-meta">
+          <span class="tl-badge ${item.step.type==='active'?'tl-active':'tl-passive'}">${item.step.type==='active'?'⚡ 需要顧':'⏳ 等待中，可做別的'}</span>
+          ${toolHtml}
+          <span class="tl-dur">${item.step.duration}分鐘</span>
+          ${item.step.hint?`<button class="hint-btn" onclick="showHint('${idx}')">💡 小提示</button>`:''}
+        </div>
+      </div></div>
+    </div>`;
+  });
+  html+=`</div><div style="padding:16px"><div class="done-banner" id="done-banner" style="display:none"><div class="done-icon">🎉</div><h3 style="font-size:22px;font-weight:700;margin-bottom:4px">大功告成！</h3><p style="opacity:.85">所有菜都完成了，開飯囉！</p></div></div>`;
+  document.getElementById('cooking-content').innerHTML=html;
+  const pw=document.getElementById('cook-prog-wrap');
+  pw.style.display='';
+  document.getElementById('cook-step-label').textContent=`步驟 1 / ${total}`;
+  document.getElementById('cook-time-left').textContent=`共約 ${totalMins} 分鐘`;
+}
+
+function setupCookingScroll(){
+  const scroller=document.getElementById('cooking-content');
+  if(!scroller)return;
+  scroller.onscroll=()=>{
+    const items=document.querySelectorAll('.tl-item');if(!items.length)return;
+    // Use getBoundingClientRect for accurate viewport-relative positions
+    const scrollerTop=scroller.getBoundingClientRect().top;
+    const threshold=scrollerTop+scroller.clientHeight*0.4;
+    // When scrolled to bottom, force last step
+    const atBottom=scroller.scrollTop+scroller.clientHeight>=scroller.scrollHeight-8;
+    let cur=0;
+    if(atBottom){
+      cur=items.length-1;
+    }else{
+      items.forEach((el,i)=>{if(el.getBoundingClientRect().top<=threshold)cur=i;});
+    }
+    items.forEach((el,i)=>{el.className='tl-item '+(i<cur?'tl-done':i===cur?'tl-current':'tl-upcoming');});
+    const pct=Math.round((cur+1)/items.length*100);
+    document.getElementById('cook-prog-fill').style.width=pct+'%';
+    document.getElementById('cook-step-label').textContent=`步驟 ${cur+1} / ${items.length}`;
+    if(cur===items.length-1)document.getElementById('done-banner').style.display='';
+  };
+}
+
+let hintData={};
+function showHint(idx){
+  const tl=S.cookingTimeline;if(!tl[idx])return;
+  document.getElementById('hint-title').textContent='💡 小提示';
+  document.getElementById('hint-body').textContent=tl[idx].step.hint;
+  document.getElementById('hint-overlay').classList.add('open');
+}
+function closeHint(){document.getElementById('hint-overlay').classList.remove('open');}
+
+
+// ── LIBRARY PLAN SELECTION ──
+function togglePlanSelect(id){
+  const idx=S.planSelected.indexOf(id);
+  if(idx>=0)S.planSelected.splice(idx,1);else S.planSelected.push(id);
+  renderLibrary();updatePlanBar();
+}
+function updatePlanBar(){
+  const bar=document.getElementById('lib-plan-bar');
+  const cnt=document.getElementById('lib-plan-count');
+  if(!bar)return;
+  if(S.planSelected.length>0&&curScreen==='library'){bar.style.display='';if(cnt)cnt.textContent=S.planSelected.length;}
+  else{bar.style.display='none';}
+}
+function startFromLibrary(){
+  const recipes=S.planSelected.map(id=>allRecipes().find(r=>r.id===id)).filter(Boolean);
+  if(!recipes.length){alert('請先選擇至少一道菜！');return;}
+  S.currentMenu=recipes;S.shoppingChecked={};S.shoppingServings=S.servings||2;
+  S.planSelected=[];updatePlanBar();renderShopping();navigate('shopping');
+}
+
+// ── LIBRARY ──
+let libFilter='全部';
+function setLibFilter(v){libFilter=v;document.querySelectorAll('#lib-filters .chip').forEach(c=>c.classList.toggle('selected',c.dataset.val===v));renderLibrary();}
+function renderLibrary(){
+  const q=(document.getElementById('lib-search')?.value||'').toLowerCase();
+  let list=allRecipes();
+  if(libFilter!=='全部'){
+    if(libFilter==='自定義')list=list.filter(r=>r.custom);
+    else if(libFilter==='湯品')list=list.filter(r=>r.category==='soup');
+    else if(libFilter==='甜品')list=list.filter(r=>r.category==='dessert');
+    else if(libFilter==='飲料')list=list.filter(r=>r.category==='drink');
+    else list=list.filter(r=>r.cuisine.includes(libFilter));
+  }
+  if(q)list=list.filter(r=>r.name.includes(q)||(r.tags||[]).some(t=>t.includes(q))||r.ingredients.some(i=>i.name.includes(q))||(r.description||'').includes(q));
+  const el=document.getElementById('lib-list');
+  if(!list.length){el.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">找不到符合的食譜</div>';return;}
+  el.innerHTML=list.map(r=>`
+    <div class="lib-card${S.planSelected.includes(r.id)?' plan-selected':''}" onclick="openDetail('${r.id}')">
+      <div class="lc-emoji">${r.emoji||'🍳'}</div>
+      <div style="flex:1"><div class="lc-name">${S.frequent.includes(r.id)?'📌 ':''}${r.name}</div>
+        <div class="lc-meta"><span>${r.cuisine[0]}</span><span>⏱ ${r.totalTime}分</span><span>${(r.tools||[]).slice(0,2).join('/')}</span></div>
+        ${q&&!r.name.includes(q)&&r.ingredients.some(i=>i.name.includes(q))?`<div style="font-size:11px;color:var(--primary);margin-top:3px">含食材：${r.ingredients.filter(i=>i.name.includes(q)).map(i=>i.name).slice(0,3).join('、')}</div>`:''}
+      </div>
+      <div class="lc-actions" onclick="event.stopPropagation()">
+        <button class="icon-btn ${S.planSelected.includes(r.id)?'plan-sel-on':''}" onclick="togglePlanSelect('${r.id}')" title="加入今日規劃">${S.planSelected.includes(r.id)?'✅':'＋'}</button>
+        <button class="icon-btn ${S.favorites.includes(r.id)?'fav-on':''}" onclick="toggleFav('${r.id}',this)">${S.favorites.includes(r.id)?'❤️':'🤍'}</button>
+        <button class="icon-btn ${S.frequent.includes(r.id)?'freq-on':''}" onclick="toggleFreq('${r.id}',this)">📌</button>
+      </div>
+    </div>`).join('');
+}
+function toggleFav(id,btn){
+  S.favorites.includes(id)?S.favorites.splice(S.favorites.indexOf(id),1):S.favorites.push(id);
+  btn.className='icon-btn'+(S.favorites.includes(id)?' fav-on':'');
+  btn.textContent=S.favorites.includes(id)?'❤️':'🤍';save();
+}
+function toggleFreq(id,btn){
+  S.frequent.includes(id)?S.frequent.splice(S.frequent.indexOf(id),1):S.frequent.push(id);
+  btn.className='icon-btn'+(S.frequent.includes(id)?' freq-on':'');
+  save();updateFavSection();renderSettings();
+}
+
+function openDetail(id){
+  const r=allRecipes().find(r=>r.id===id);if(!r)return;
+  document.getElementById('detail-content').innerHTML=`
+    <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px"><div style="font-size:40px">${r.emoji||'🍳'}</div>
+      <div><div style="font-size:20px;font-weight:700">${r.name}</div><div style="font-size:13px;color:var(--muted)">${r.description||''}</div></div></div>
+    <div style="display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px">
+      <span class="badge badge-cuisine">${r.cuisine[0]}</span>
+      <span class="badge badge-time">⏱ ${r.totalTime}分</span>
+      ${(r.tools||[]).map(t=>`<span class="badge badge-tool">${t}</span>`).join('')}
+    </div>
+    <div style="font-weight:700;margin-bottom:8px">食材</div>
+    <div class="card" style="margin-bottom:14px;padding:8px 14px">${r.ingredients.map(i=>`<div style="display:flex;justify-content:space-between;padding:7px 0;border-bottom:1px solid var(--border);font-size:14px"><span>${i.name}${i.optional?'<span style="font-size:11px;color:var(--muted)">（非必要）</span>':''}</span><span style="color:var(--muted)">${i.amount}</span></div>`).join('')}</div>
+    <div style="font-weight:700;margin-bottom:8px">步驟</div>
+    ${r.steps.map((s,i)=>`<div style="display:flex;gap:10px;margin-bottom:10px"><div style="width:24px;height:24px;background:var(--primary);color:#fff;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:700;flex-shrink:0">${i+1}</div><div style="flex:1"><div style="font-size:14px;line-height:1.5">${s.text}</div><div style="font-size:12px;color:var(--muted);margin-top:3px">${s.type==='passive'?'⏳ 被動':'⚡ 主動'} · ${s.duration}分鐘${s.hint?` <span style="color:var(--primary)">（有小提示）</span>`:''}</div></div></div>`).join('')}
+    ${r.custom?`<div style="margin-top:14px;display:flex;gap:8px"><button class="btn-outline" onclick="editRecipe('${r.id}')">✏️ 編輯</button><button class="btn-outline" style="color:red;border-color:red" onclick="deleteRecipe('${r.id}')">🗑 刪除</button></div>`:''}`;
+  document.getElementById('modal-detail').classList.add('open');
+}
+
+// ── ADD RECIPE ──
+let editingId=null;
+function openAddRecipe(){editingId=null;document.getElementById('add-title').textContent='新增食譜';resetForm();navigate('add');}
+function resetForm(){
+  ['f-name','f-desc'].forEach(id=>document.getElementById(id).value='');
+  document.getElementById('f-time').value='';
+  document.getElementById('import-text').value='';
+  document.getElementById('ing-list').innerHTML='';
+  document.getElementById('step-list').innerHTML='';
+  addIngRow();addIngRow();addIngRow();addStepRow();addStepRow();
+}
+function addIngRow(name='',amount='',opt=false){
+  const d=document.createElement('div');d.className='ing-row';
+  d.innerHTML=`<input style="flex:2" class="form-input" placeholder="食材名稱" value="${name}"><input style="flex:1" class="form-input" placeholder="份量" value="${amount}"><button class="btn-del" onclick="this.parentElement.remove()">✕</button>`;
+  document.getElementById('ing-list').appendChild(d);
+}
+function addStepRow(text='',dur='',type='active'){
+  const d=document.createElement('div');d.className='step-row';
+  d.innerHTML=`<textarea rows="2" placeholder="步驟說明">${text}</textarea><input type="number" class="step-dur" placeholder="分" min="1" max="120" value="${dur}"><button class="step-type-btn ${type==='passive'?'passive':'active-type'}" onclick="toggleType(this)">${type==='passive'?'⏳被動':'⚡主動'}</button><button class="btn-del" onclick="this.parentElement.remove()">✕</button>`;
+  document.getElementById('step-list').appendChild(d);
+}
+function toggleType(btn){
+  const p=btn.classList.contains('passive');
+  btn.className='step-type-btn '+(p?'active-type':'passive');
+  btn.textContent=p?'⚡主動':'⏳被動';
+}
+
+function parseIngLine(text){
+  // Strip parenthetical notes like （切段）（備註）
+  const clean=text.replace(/（[^）]*）/g,'').replace(/\([^)]*\)/g,'').trim();
+  if(!clean||clean.length<2)return null;
+  // Match: name + optional 約 + number + rest (amount)
+  // e.g. "豬五花肉 1200 克", "水約 1200 cc", "青蔥 3 根", "冰糖 2 大匙"
+  const m=clean.match(/^(.+?)\s*(約?\s*\d[\d.\/~～,，\s]*.{0,8})$/);
+  if(m){const n=m[1].trim(),a=m[2].trim();if(n.length>0&&n.length<15)return{n,a};}
+  if(clean.length>1&&clean.length<12)return{n:clean,a:'適量'};
+  return null;
+}
+
+function parseIngLine(text){
+  const clean=text.replace(/（[^）]*）/g,'').replace(/\([^)]*\)/g,'').trim();
+  if(!clean||clean.length<2)return null;
+  const m=clean.match(/^(.+?)\s*(約?\s*\d[\d.\/~～,，\s]*.{0,8})$/);
+  if(m){const n=m[1].trim(),a=m[2].trim();if(n.length>0&&n.length<15)return{n,a};}
+  if(clean.length>1&&clean.length<12)return{n:clean,a:'適量'};
+  return null;
+}
+
+function parseImport(){
+  const raw=document.getElementById('import-text').value.trim();
+  if(!raw){alert('請先貼上食譜文字');return;}
+  const processed=raw
+    .replace(/(食材|辛香料|香料|材料|原料|調味料[^\s：:]{0,4})([：:])/g,'\n$1$2')
+    .replace(/(作法|步驟|做法|烹調)[：:]/g,'\n$1:')
+    .replace(/、/g,'\n');
+  const lines=processed.split('\n').map(l=>l.trim()).filter(Boolean);
+  let mode=null;const ings=[],steps=[];let name='',time=20;
+  for(let i=0;i<lines.length;i++){
+    const l=lines[i];
+    const tMatch=l.match(/(\d+)\s*分鐘/);if(tMatch)time=parseInt(tMatch[1]);
+    if(/^(食材|辛香料|香料|材料|原料|調味料)/.test(l)){
+      mode='ing';
+      const after=l.replace(/^[^：:]+[：:]\s*/,'').trim();
+      if(after.length>1){const p=parseIngLine(after);if(p)ings.push(p);}
+      continue;
+    }
+    if(/^(作法|步驟|做法|烹調)/.test(l)){mode='step';continue;}
+    if(!mode){
+      if(/\d+\s*(克|g|ml|cc|大匙|小匙|顆|個|根|片|瓣|把|條|匙|杯|碗|公克|磅)/.test(l))mode='ing';
+      else if(/^\d+[\.。]/.test(l))mode='step';
+    }
+    if(mode==='ing'){const p=parseIngLine(l);if(p)ings.push(p);}
+    if(mode==='step'){
+      const c=l.replace(/^\d+[\.。\)）\s]+/,'').replace(/^步驟\s*\d+[：:\s]+/,'').trim();
+      if(c.length>4)steps.push({t:c,d:5});
+    }
+  }
+  if(!name){
+    const fl=raw.split('\n').map(l=>l.trim()).find(l=>l&&!/^(食材|材料|辛香料|作法|步驟)/.test(l));
+    if(fl&&fl.length<30)name=fl;
+  }
+  if(name)document.getElementById('f-name').value=name;
+  if(time)document.getElementById('f-time').value=time;
+  document.getElementById('ing-list').innerHTML='';
+  document.getElementById('step-list').innerHTML='';
+  ings.forEach(i=>addIngRow(i.n,i.a));
+  steps.forEach(s=>addStepRow(s.t,s.d));
+  if(!ings.length&&!steps.length)alert('無法解析，確認文字包含食材和步驟標題後重試');
+  else{document.getElementById('import-text').value='';document.getElementById('import-text').placeholder='✅ 解析完成，請確認下方內容';}
+}
+
+function saveRecipe(){
+  const name=document.getElementById('f-name').value.trim();
+  if(!name){alert('請填寫食譜名稱');return;}
+  const cuisine=document.getElementById('f-cuisine').value;
+  const totalTime=parseInt(document.getElementById('f-time').value)||20;
+  const description=document.getElementById('f-desc').value.trim();
+  const ingredients=Array.from(document.querySelectorAll('#ing-list .ing-row')).map(row=>{
+    const ins=row.querySelectorAll('input');return{name:ins[0].value.trim(),amount:ins[1].value.trim(),category:'其他'};
+  }).filter(i=>i.name);
+  const steps=Array.from(document.querySelectorAll('#step-list .step-row')).map(row=>{
+    const ta=row.querySelector('textarea'),di=row.querySelector('.step-dur'),tb=row.querySelector('.step-type-btn');
+    return{text:ta.value.trim(),duration:parseInt(di.value)||5,type:tb.classList.contains('passive')?'passive':'active'};
+  }).filter(s=>s.text);
+  if(!steps.length){alert('請至少新增一個步驟');return;}
+  const EMOJIS={'台式':'🍳','中式':'🥢','日式':'🍱','韓式':'🌶️','義式':'🍝','法式':'🥐','美式':'🍔','主食':'🍜','其他':'🍽️'};
+  const r={id:editingId||'c-'+Date.now(),name,emoji:EMOJIS[cuisine]||'🍳',cuisine:[cuisine],category:'main',tools:[],tags:['自定義'],servings:2,totalTime,description,ingredients,steps,custom:true};
+  editingId?S.customRecipes.splice(S.customRecipes.findIndex(x=>x.id===editingId),1,r):S.customRecipes.push(r);
+  save();navigate('library');renderLibrary();
+}
+function editRecipe(id){
+  const r=S.customRecipes.find(r=>r.id===id);if(!r)return;
+  editingId=id;document.getElementById('add-title').textContent='編輯食譜';
+  document.getElementById('f-name').value=r.name;document.getElementById('f-cuisine').value=r.cuisine[0];
+  document.getElementById('f-time').value=r.totalTime;document.getElementById('f-desc').value=r.description||'';
+  document.getElementById('ing-list').innerHTML='';document.getElementById('step-list').innerHTML='';
+  r.ingredients.forEach(i=>addIngRow(i.name,i.amount));r.steps.forEach(s=>addStepRow(s.text,s.duration,s.type));
+  closeModal('modal-detail');navigate('add');
+}
+function deleteRecipe(id){
+  if(!confirm('確定刪除？'))return;
+  S.customRecipes=S.customRecipes.filter(r=>r.id!==id);save();closeModal('modal-detail');renderLibrary();
+}
+function gotoRecipe(id){navigate('library');setTimeout(()=>openDetail(id),80);}
+function renderSettings(){
+  renderThemeGrid();
+  const grid=document.getElementById('tool-grid');
+  if(grid)grid.innerHTML=ALL_TOOLS.map(t=>`<button class="tool-chip ${S.myTools.includes(t)?'on':''}" onclick="toggleTool('${t}',this)">${t}</button>`).join('');
+  document.querySelectorAll('#seg-servings .seg').forEach(b=>{
+    b.classList.toggle('selected',+b.dataset.val===S.servings);
+    b.onclick=()=>{S.servings=+b.dataset.val;document.querySelectorAll('#seg-servings .seg').forEach(s=>s.classList.remove('selected'));b.classList.add('selected');save();};
+  });
+  const fc=document.getElementById('freq-count');
+  if(fc){
+    if(S.frequent.length){
+      fc.innerHTML=S.frequent.map(id=>{
+        const r=allRecipes().find(r=>r.id===id);
+        return r?`<button class="freq-chip" onclick="gotoRecipe('${id}')">${r.emoji||'🍳'} ${r.name}</button>`:'';
+      }).filter(Boolean).join('');
+    } else {
+      fc.innerHTML='<span style="font-size:13px;color:var(--muted)">在食譜庫點 📌 來標記</span>';
+    }
+  }
+}
+function toggleTool(t,btn){
+  S.myTools.includes(t)?S.myTools.splice(S.myTools.indexOf(t),1):S.myTools.push(t);
+  btn.classList.toggle('on',S.myTools.includes(t));save();
+}
+function clearCustom(){if(!confirm('確定清除所有自定義食譜？'))return;S.customRecipes=[];save();renderLibrary();}
+// ── INIT ──
+load();initHome();navigate('home');initGreeting();
+</script>
+<script>
+if('serviceWorker' in navigator){
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('sw.js').then(r => console.log('SW registered')).catch(e => console.log('SW error', e));
+  });
+}
+</script>
+</body>
+</html>

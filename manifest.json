@@ -1,0 +1,14 @@
+{
+  "name": "不胡鬧廚房",
+  "short_name": "不胡鬧廚房",
+  "description": "今天要煮什麼，交給我來規劃",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#FFF8F2",
+  "theme_color": "#E8623B",
+  "icons": [
+    { "src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ]
+}
